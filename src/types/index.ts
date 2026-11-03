@@ -630,3 +630,374 @@ export interface CommercialPlan {
 
 export type BusinessLanguage = 'pt' | 'en' | 'es';
 
+
+
+// ==========================================
+// MARKETPLACE & E-COMMERCE
+// ==========================================
+
+export type MarketplaceStoreStatus = 'PENDING_APPROVAL' | 'ACTIVE' | 'SUSPENDED' | 'INACTIVE';
+
+export interface MarketplaceStore {
+  id: string;
+  owner_id: string;
+  commercial_profile_id?: string;
+  store_name: string;
+  store_slug: string;
+  description: string;
+  logo_url: string;
+  banner_url: string;
+  legal_name: string;
+  tax_id: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  zip_code: string;
+  commission_rate: number;
+  status: MarketplaceStoreStatus;
+  is_verified: boolean;
+  total_sales: number;
+  total_products: number;
+  rating_average: number;
+  rating_count: number;
+  created_at: string;
+}
+
+export interface MarketplaceCategory {
+  id: string;
+  parent_id?: string;
+  name: string;
+  slug: string;
+  description: string;
+  icon: string;
+  display_order: number;
+  is_active: boolean;
+}
+
+export type ProductStatus = 'DRAFT' | 'PENDING_REVIEW' | 'ACTIVE' | 'OUT_OF_STOCK' | 'DISCONTINUED';
+
+export interface MarketplaceProduct {
+  id: string;
+  store_id: string;
+  store_name: string;
+  store_logo: string;
+  category_id: string;
+  category_name?: string;
+  name: string;
+  slug: string;
+  description: string;
+  brand: string;
+  sku: string;
+  base_price: number;
+  sale_price?: number;
+  currency: string;
+  weight_grams: number;
+  dimensions_cm: { length: number; width: number; height: number };
+  modality: string;
+  main_image_url: string;
+  gallery_images: string[];
+  video_url?: string;
+  has_variants: boolean;
+  stock_quantity: number;
+  low_stock_threshold: number;
+  is_active: boolean;
+  is_featured: boolean;
+  status: ProductStatus;
+  views_count: number;
+  sales_count: number;
+  rating_average: number;
+  rating_count: number;
+  created_at: string;
+}
+
+export interface ProductVariant {
+  id: string;
+  product_id: string;
+  name: string;
+  sku: string;
+  attributes: { [key: string]: string }; // {size: "G", color: "Preto"}
+  price_adjustment: number;
+  stock_quantity: number;
+  is_active: boolean;
+}
+
+export interface ShippingAddress {
+  id: string;
+  user_id: string;
+  label: string;
+  recipient_name: string;
+  street: string;
+  number: string;
+  complement?: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+  zip_code: string;
+  phone: string;
+  is_default: boolean;
+}
+
+export interface CartItem {
+  id: string;
+  cart_id: string;
+  product_id: string;
+  product_name: string;
+  product_image: string;
+  variant_id?: string;
+  variant_name?: string;
+  quantity: number;
+  unit_price: number;
+  store_id: string;
+  store_name: string;
+}
+
+export interface ShoppingCart {
+  id: string;
+  user_id: string;
+  items: CartItem[];
+  subtotal: number;
+  items_count: number;
+}
+
+export type OrderStatus = 
+  | 'PENDING_PAYMENT' 
+  | 'PAYMENT_PROCESSING' 
+  | 'PAID' 
+  | 'PREPARING' 
+  | 'SHIPPED' 
+  | 'DELIVERED' 
+  | 'CANCELLED' 
+  | 'REFUNDED';
+
+export interface Order {
+  id: string;
+  order_number: string;
+  buyer_id: string;
+  buyer_name: string;
+  buyer_avatar: string;
+  shipping_address: ShippingAddress;
+  subtotal: number;
+  shipping_cost: number;
+  discount_amount: number;
+  coupon_code?: string;
+  total_amount: number;
+  currency: string;
+  status: OrderStatus;
+  payment_method: string;
+  payment_status: string;
+  items: OrderItem[];
+  tracking_codes?: { store_id: string; tracking_code: string }[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrderItem {
+  id: string;
+  order_id: string;
+  store_id: string;
+  store_name: string;
+  product_id: string;
+  product_name: string;
+  product_image: string;
+  variant_name?: string;
+  quantity: number;
+  unit_price: number;
+  subtotal: number;
+}
+
+export type PaymentStatus = 'PENDING' | 'PROCESSING' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | 'REFUNDED';
+
+export interface Payment {
+  id: string;
+  order_id: string;
+  payment_provider: 'MERCADO_PAGO' | 'STRIPE';
+  provider_payment_id: string;
+  payment_method: string;
+  amount: number;
+  currency: string;
+  status: PaymentStatus;
+  pix_qr_code?: string;
+  pix_qr_code_base64?: string;
+  boleto_url?: string;
+  installments: number;
+  failure_reason?: string;
+  created_at: string;
+}
+
+export interface Coupon {
+  id: string;
+  code: string;
+  description: string;
+  discount_type: 'PERCENTAGE' | 'FIXED_AMOUNT';
+  discount_value: number;
+  min_purchase_amount: number;
+  valid_until: string;
+  is_active: boolean;
+}
+
+export interface ProductReview {
+  id: string;
+  product_id: string;
+  reviewer_id: string;
+  reviewer_name: string;
+  reviewer_avatar: string;
+  rating: number;
+  title: string;
+  comment: string;
+  images: string[];
+  is_verified_purchase: boolean;
+  helpful_count: number;
+  created_at: string;
+}
+
+// ==========================================
+// EVENTOS ESPORTIVOS EXPANDIDOS
+// ==========================================
+
+export type SportEventType = 
+  | 'CAMPEONATO' 
+  | 'SUPER_LUTA' 
+  | 'SEMINARIO' 
+  | 'WORKSHOP' 
+  | 'TREINO_COLETIVO' 
+  | 'FESTIVAL' 
+  | 'TORNEIO_ABERTO';
+
+export type EventStatus = 'UPCOMING' | 'ONGOING' | 'COMPLETED' | 'CANCELLED';
+
+export interface SportEvent {
+  id: string;
+  organizer_id: string;
+  organizer_name: string;
+  organizer_logo: string;
+  commercial_profile_id?: string;
+  title: string;
+  slug: string;
+  description: string;
+  event_type: SportEventType;
+  modality: string;
+  banner_url: string;
+  promo_video_url?: string;
+  start_date: string;
+  end_date?: string;
+  start_time: string;
+  end_time?: string;
+  venue_name: string;
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  map_coordinates?: { lat: number; lng: number };
+  categories: string[];
+  rules_url?: string;
+  contact_email: string;
+  contact_phone?: string;
+  registration_open: boolean;
+  registration_deadline?: string;
+  registration_fee?: number;
+  max_participants?: number;
+  current_participants: number;
+  has_ticketing: boolean;
+  ticket_price?: number;
+  ticket_url?: string;
+  has_live_stream: boolean;
+  stream_url?: string;
+  status: EventStatus;
+  is_featured: boolean;
+  views_count: number;
+  interested_count: number;
+  has_registered?: boolean;
+  has_interested?: boolean;
+  created_at: string;
+}
+
+export interface EventRegistration {
+  id: string;
+  event_id: string;
+  participant_id: string;
+  participant_name: string;
+  participant_avatar: string;
+  category: string;
+  team_name?: string;
+  registration_number: string;
+  payment_status: 'PENDING' | 'PAID' | 'EXEMPT' | 'REFUNDED';
+  check_in_status: 'NOT_CHECKED_IN' | 'CHECKED_IN' | 'COMPETING' | 'FINISHED';
+  check_in_time?: string;
+  created_at: string;
+}
+
+export interface EventResult {
+  id: string;
+  event_id: string;
+  participant_id: string;
+  participant_name: string;
+  participant_avatar: string;
+  category: string;
+  position: number;
+  medal: 'GOLD' | 'SILVER' | 'BRONZE' | 'PARTICIPANT';
+  points_earned: number;
+}
+
+// ==========================================
+// TRANSMISSÕES AUTORIZADAS
+// ==========================================
+
+export type StreamType = 
+  | 'UFC_FIGHT' 
+  | 'BELLATOR_FIGHT' 
+  | 'CAMPEONATO' 
+  | 'SUPER_LUTA' 
+  | 'SEMINARIO_LIVE' 
+  | 'TREINO_ABERTO' 
+  | 'OUTRO';
+
+export type StreamProvider = 'YOUTUBE' | 'TWITCH' | 'VIMEO' | 'CUSTOM_HLS' | 'IFRAME_EMBED';
+export type StreamStatus = 'SCHEDULED' | 'LIVE' | 'ENDED' | 'CANCELLED';
+
+export interface AuthorizedStream {
+  id: string;
+  admin_id: string;
+  title: string;
+  slug: string;
+  description: string;
+  stream_type: StreamType;
+  modality: string;
+  event_date: string;
+  event_time: string;
+  banner_url: string;
+  fight_card?: Array<{
+    fighter1: string;
+    fighter2: string;
+    weight_class: string;
+    title_fight: boolean;
+  }>;
+  stream_provider: StreamProvider;
+  stream_url: string;
+  embed_code?: string;
+  is_live: boolean;
+  is_free: boolean;
+  requires_subscription: boolean;
+  access_rules?: any;
+  chat_enabled: boolean;
+  countdown_enabled: boolean;
+  views_count: number;
+  peak_viewers: number;
+  status: StreamStatus;
+  rights_holder: string;
+  license_confirmation: string;
+  is_featured: boolean;
+  created_at: string;
+}
+
+export interface StreamChatMessage {
+  id: string;
+  stream_id: string;
+  user_id: string;
+  user_name: string;
+  user_avatar: string;
+  message: string;
+  is_pinned: boolean;
+  created_at: string;
+}

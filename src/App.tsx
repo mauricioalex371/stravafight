@@ -785,7 +785,7 @@ export default function App() {
   const unreadNotificationsCount = notifications.filter((n) => !n.isRead).length;
 
   return (
-    <div className="min-h-screen bg-[#05070B] text-white flex flex-col font-sans selection:bg-[#F20D18] selection:text-white">
+    <div className="min-h-screen bg-[#05070B] text-white flex flex-col font-sans selection:bg-[#F20D18] selection:text-white overflow-x-hidden w-full max-w-full">
       {/* Top Navbar */}
       <Navbar
         currentUser={currentUser}
@@ -812,7 +812,7 @@ export default function App() {
       )}
 
       {/* Main Body Layout (Desktop Sidebar + Center View) */}
-      <div className="flex-1 max-w-7xl w-full mx-auto flex">
+      <div className="flex-1 max-w-7xl w-full mx-auto flex overflow-x-hidden">
         <Sidebar
           currentView={currentView}
           onChangeView={setCurrentView}
@@ -823,7 +823,7 @@ export default function App() {
           onOpenSfActivity={() => setIsSfActivityModalOpen(true)}
         />
 
-        <main className="flex-1 p-3 sm:p-5 overflow-y-auto max-w-full">
+        <main className="flex-1 p-3 sm:p-5 overflow-y-auto max-w-full overflow-x-hidden">
           <React.Suspense fallback={<ViewLoadingFallback />}>
             {currentView === 'feed' && (
             <FeedView

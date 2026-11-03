@@ -1,0 +1,50 @@
+{
+  "id": "/",
+  "name": "STRAVA FIGHT — Esforço que transforma. Luta que evolui.",
+  "short_name": "StravaFight",
+  "description": "Rede social global de artes marciais e esportes de combate integrada ao SF Academy e SF Business.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#05070B",
+  "theme_color": "#05070B",
+  "orientation": "portrait-primary",
+  "categories": ["sports", "social", "fitness"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/aistudio/LOGO_47d32ee0.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Feed de Treinos",
+      "short_name": "Feed",
+      "description": "Veja os treinos recentes da comunidade",
+      "url": "/?view=feed",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "Filtro SF Activity",
+      "short_name": "Activity",
+      "description": "Gere foto oficial de treino",
+      "url": "/?modal=activity",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "SF Academy",
+      "short_name": "Academy",
+      "description": "Gestão de tatame, alunos e turmas",
+      "url": "/?view=academy",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    }
+  ]
+}

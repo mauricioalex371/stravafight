@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-sf-black: #05070b;
+    --color-sf-navy: #071321;
+    --color-sf-red: #f20d18;
+    --color-sf-red-hover: #d90812;
+    --color-sf-graphite: #171c25;
+    --color-sf-card: #0d121c;
+    --color-sf-border: #1f2736;
+  }
+
+  body {
+    background-color: #05070b;
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    overscroll-behavior-y: none;
+  }
+}
+
+/* Custom scrollbars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Tatame Red Glow & Badges */
+.shadow-glow-red {
+  box-shadow: 0 0 20px -3px rgba(242, 13, 24, 0.45);
+}
+
+.shadow-glow-subtle {
+  box-shadow: 0 4px 20px -2px rgba(7, 19, 33, 0.6);
+}
+
+/* Story gradient ring */
+.story-ring-gradient {
+  background: linear-gradient(45deg, #f20d18, #ff6b35, #f59e0b, #f20d18);
+}

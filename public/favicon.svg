@@ -1,0 +1,10 @@
+<svg viewBox="0 0 450 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Red S -->
+  <path d="M135 60 L305 60 L290 100 L168 100 L148 145 L268 145 L236 218 L68 218 L88 178 L212 178 L230 138 L112 138 L135 60 Z" fill="#F20D18" />
+  <!-- White Top Accent -->
+  <polygon points="304,58 324,58 310,76" fill="#FFFFFF" />
+  <!-- White F -->
+  <polygon points="318,72 445,72 414,118 305,118" fill="#FFFFFF" />
+  <polygon points="288,135 398,135 372,175 272,175" fill="#FFFFFF" />
+  <polygon points="318,72 272,175 212,305 260,208 305,118" fill="#FFFFFF" />
+</svg>

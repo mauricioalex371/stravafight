@@ -1,0 +1,8 @@
+{
+  "name": "STRAVA FIGHT",
+  "description": "Rede social global de artes marciais e esportes de combate integrada ao SF Academy e SF Business.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

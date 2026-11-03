@@ -1,0 +1,14 @@
+# STRAVA FIGHT — Robots.txt
+# https://stravafight.com.br
+
+User-agent: *
+Allow: /
+Allow: /explore
+Allow: /events
+Allow: /institutional
+Allow: /business
+Disallow: /direct
+Disallow: /api/
+Disallow: /admin/
+
+Sitemap: https://stravafight.com.br/sitemap.xml

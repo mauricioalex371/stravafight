@@ -7,14 +7,15 @@ import {
   Plus, 
   Search,
   Sparkles,
-  Briefcase
+  Briefcase,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { StravaFightLogo } from './StravaFightLogo';
 import { PWAInstallButton } from './PWAInstallButton';
 
 interface NavbarProps {
-
   currentUser: UserProfile;
   unreadMessagesCount: number;
   unreadNotificationsCount: number;
@@ -25,6 +26,8 @@ interface NavbarProps {
   onOpenCreatePost: () => void;
   onNavigate: (view: string) => void;
   currentView: string;
+  theme: 'dark' | 'light';
+  onToggleTheme: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -37,7 +40,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenCheckIn,
   onOpenCreatePost,
   onNavigate,
-  currentView
+  currentView,
+  theme,
+  onToggleTheme
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-[#05070B]/95 backdrop-blur-md border-b border-[#171C25] px-3.5 py-2.5 transition-all">
@@ -128,6 +133,20 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="absolute -top-1 -right-1 bg-[#F20D18] text-white text-[9px] font-black px-1.5 py-0.2 rounded-full min-w-[16px] text-center border-2 border-[#05070B] animate-pulse">
                 {unreadMessagesCount}
               </span>
+            )}
+          </button>
+
+          {/* Theme Toggle */}
+          <button
+            onClick={onToggleTheme}
+            className="w-9 h-9 rounded-xl flex items-center justify-center bg-[#0D121C] border border-[#171C25] text-[#CBD5E1] hover:text-white hover:border-[#F20D18] transition-all active:scale-90"
+            title={theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}
+            aria-label="Alternar tema"
+          >
+            {theme === 'dark' ? (
+              <Sun className="w-4 h-4" />
+            ) : (
+              <Moon className="w-4 h-4" />
             )}
           </button>
 

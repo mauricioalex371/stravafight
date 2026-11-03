@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { X, Heart, Send } from 'lucide-react';
 import { Post, PostComment, UserProfile } from '../types';
 import { generateUUID } from '../utils/formatters';
@@ -17,6 +17,10 @@ export const CommentsModal: React.FC<CommentsModalProps> = ({
   onAddComment
 }) => {
   const [commentText, setCommentText] = useState('');
+  const [dragY, setDragY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const startYRef = useRef(0);
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,18 +41,63 @@ export const CommentsModal: React.FC<CommentsModalProps> = ({
     setCommentText('');
   };
 
+  // Touch drag handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    startYRef.current = e.touches[0].clientY;
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    const currentY = e.touches[0].clientY;
+    const diff = currentY - startYRef.current;
+    if (diff > 0) { // Only allow dragging down
+      setDragY(diff);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    if (dragY > 150) { // Threshold to close
+      onClose();
+    } else {
+      setDragY(0); // Snap back
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-sm animate-in fade-in select-none">
-      <div className="w-full max-w-lg bg-[#0D121C] border border-[#171C25] rounded-t-3xl sm:rounded-3xl p-4 sm:p-5 shadow-2xl h-[75vh] max-h-[600px] flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#171C25]">
-          <h3 className="text-sm font-black text-white">Comentários ({post.comments.length})</h3>
-          <button onClick={onClose} className="text-[#94A3B8] hover:text-white p-1">
-            <X className="w-5 h-5" />
-          </button>
+    <div 
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm animate-in fade-in"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div 
+        ref={sheetRef}
+        className="w-full max-w-lg bg-[#0D121C] border-t border-[#171C25] rounded-t-3xl shadow-2xl h-[80vh] max-h-[700px] flex flex-col transition-transform duration-200 ease-out"
+        style={{ 
+          transform: `translateY(${dragY}px)`,
+          touchAction: 'none'
+        }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Drag Handle */}
+        <div className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing">
+          <div className="w-12 h-1.5 bg-[#475569] rounded-full" />
         </div>
 
-        {/* Post snippet */}
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 pb-3 border-b border-[#171C25]">
+          <h3 className="text-sm font-black text-white">Comentários ({post.comments.length})</h3>
+          <button 
+            onClick={onClose} 
+            className="text-[#94A3B8] hover:text-white p-1.5 rounded-lg hover:bg-[#171C25] transition-colors active:scale-90"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>        {/* Post snippet */}
         <div className="py-3 border-b border-[#171C25] flex items-start gap-3">
           <img 
             src={post.authorAvatar} 

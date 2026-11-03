@@ -56,6 +56,53 @@
       * {
         box-sizing: border-box;
       }
+
+      /* Dark theme (default) */
+      :root {
+        --bg: #05070B;
+        --bg-secondary: #0A0E17;
+        --bg-card: #171C25;
+        --text: #FFFFFF;
+        --text-secondary: #94A3B8;
+        --text-muted: #475569;
+        --border: #1E293B;
+        --primary: #F20D18;
+        --primary-hover: #DC0A14;
+      }
+
+      /* Light theme */
+      html.light {
+        --bg: #F8FAFC;
+        --bg-secondary: #FFFFFF;
+        --bg-card: #FFFFFF;
+        --text: #0F172A;
+        --text-secondary: #475569;
+        --text-muted: #94A3B8;
+        --border: #E2E8F0;
+        --primary: #F20D18;
+        --primary-hover: #DC0A14;
+      }
+
+      html.light body {
+        background-color: #F8FAFC;
+        color: #0F172A;
+      }
+
+      /* Smooth scroll and hide scrollbar */
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      /* Smooth animations */
+      * {
+        transition-property: background-color, border-color, color, fill, stroke;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 150ms;
+      }
     </style>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

@@ -63,6 +63,10 @@ const ViewLoadingFallback = () => (
 
 export default function App() {
   const [currentView, setCurrentView] = useState<string>('feed');
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    const saved = localStorage.getItem('sf-theme');
+    return (saved === 'light' || saved === 'dark') ? saved : 'dark';
+  });
 
   // Domain State
   const [currentUser, setCurrentUser] = useState<UserProfile>(StorageService.getCurrentUser());
@@ -106,6 +110,16 @@ export default function App() {
       setMessages(StorageService.getMessages(activeConvId));
     }
   }, [activeConvId]);
+
+  // Theme management
+  useEffect(() => {
+    localStorage.setItem('sf-theme', theme);
+    document.documentElement.classList.toggle('light', theme === 'light');
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   // Reload all data (e.g. after backup restore)
   const handleReloadAll = () => {
@@ -785,7 +799,7 @@ export default function App() {
   const unreadNotificationsCount = notifications.filter((n) => !n.isRead).length;
 
   return (
-    <div className="min-h-screen bg-[#05070B] text-white flex flex-col font-sans selection:bg-[#F20D18] selection:text-white overflow-x-hidden w-full max-w-full">
+    <div className="min-h-screen bg-[#05070B] text-white flex flex-col font-sans selection:bg-[#F20D18] selection:text-white overflow-x-hidden w-full max-w-full dark:bg-[#05070B] dark:text-white light:bg-gray-50 light:text-gray-900">
       {/* Top Navbar */}
       <Navbar
         currentUser={currentUser}
@@ -801,6 +815,8 @@ export default function App() {
         onOpenCreatePost={() => setIsCreatePostModalOpen(true)}
         onNavigate={(view) => setCurrentView(view)}
         currentView={currentView}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
 
       {/* Gamification Floating Banner */}

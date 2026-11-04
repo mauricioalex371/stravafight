@@ -50,12 +50,12 @@ CREATE POLICY "Users can create challenges"
   TO authenticated
   WITH CHECK (auth.uid() = challenger_id);
 
--- Atualização: challenger ou opponent podem atualizar
+-- Atualização: challenger ou target podem atualizar
 CREATE POLICY "Participants can update challenges"
   ON public.combat_challenges FOR UPDATE
   TO authenticated
-  USING (auth.uid() = challenger_id OR auth.uid() = opponent_id)
-  WITH CHECK (auth.uid() = challenger_id OR auth.uid() = opponent_id);
+  USING (auth.uid() = challenger_id OR auth.uid() = target_id)
+  WITH CHECK (auth.uid() = challenger_id OR auth.uid() = target_id);
 
 -- ============================================================================
 -- 3. CONVERSATIONS (Conversas Diretas)
@@ -161,8 +161,8 @@ CREATE POLICY "Active coupons are public"
   ON public.marketplace_coupons FOR SELECT
   USING (
     is_active = true 
-    AND (expires_at IS NULL OR expires_at > NOW())
-    AND (usage_count < usage_limit OR usage_limit IS NULL)
+    AND (valid_until IS NULL OR valid_until > NOW())
+    AND (uses_count < max_uses OR max_uses IS NULL)
   );
 
 -- Inserção: vendedor cria cupons para sua loja
@@ -310,7 +310,7 @@ CREATE POLICY "Admins process withdrawals"
 CREATE POLICY "Users view own notifications"
   ON public.notifications FOR SELECT
   TO authenticated
-  USING (auth.uid() = user_id);
+  USING (auth.uid() = recipient_id);
 
 -- Inserção: sistema cria notificações (via backend)
 -- Usuários NÃO podem criar notificações diretamente
@@ -323,14 +323,14 @@ CREATE POLICY "System creates notifications"
 CREATE POLICY "Users mark own notifications as read"
   ON public.notifications FOR UPDATE
   TO authenticated
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+  USING (auth.uid() = recipient_id)
+  WITH CHECK (auth.uid() = recipient_id);
 
 -- Exclusão: usuário pode deletar suas notificações
 CREATE POLICY "Users delete own notifications"
   ON public.notifications FOR DELETE
   TO authenticated
-  USING (auth.uid() = user_id);
+  USING (auth.uid() = recipient_id);
 
 -- ============================================================================
 -- 12. REELS (Vídeos Curtos)
@@ -345,20 +345,20 @@ CREATE POLICY "Reels are public"
 CREATE POLICY "Users create own reels"
   ON public.reels FOR INSERT
   TO authenticated
-  WITH CHECK (auth.uid() = user_id);
+  WITH CHECK (auth.uid() = author_id);
 
 -- Atualização: apenas próprio usuário
 CREATE POLICY "Users update own reels"
   ON public.reels FOR UPDATE
   TO authenticated
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+  USING (auth.uid() = author_id)
+  WITH CHECK (auth.uid() = author_id);
 
 -- Exclusão: próprio usuário ou admin
 CREATE POLICY "Users delete own reels"
   ON public.reels FOR DELETE
   TO authenticated
-  USING (auth.uid() = user_id OR is_admin());
+  USING (auth.uid() = author_id OR is_admin());
 
 -- ============================================================================
 -- 13. STORIES (Histórias 24h)
@@ -385,17 +385,16 @@ CREATE POLICY "Users delete own stories"
 -- 14. STREAM_ACCESS_LOGS (Logs de Acesso a Streams)
 -- ============================================================================
 
--- Leitura: organizador da stream vê logs
-CREATE POLICY "Stream organizers view access logs"
+-- Leitura: admin da stream vê logs
+CREATE POLICY "Stream admins view access logs"
   ON public.stream_access_logs FOR SELECT
   TO authenticated
   USING (
     EXISTS (
       SELECT 1 
       FROM authorized_streams ast
-      JOIN sports_events se ON ast.event_id = se.id
       WHERE ast.id = stream_access_logs.stream_id
-        AND se.organizer_id = auth.uid()
+        AND ast.admin_id = auth.uid()
     )
   );
 
@@ -420,31 +419,29 @@ CREATE POLICY "Stream schedules are public"
   ON public.stream_schedules FOR SELECT
   USING (true);
 
--- Inserção: organizador cria schedule
-CREATE POLICY "Organizers create stream schedules"
+-- Inserção: admin da stream cria schedule
+CREATE POLICY "Stream admins create schedules"
   ON public.stream_schedules FOR INSERT
   TO authenticated
   WITH CHECK (
     EXISTS (
       SELECT 1 
       FROM authorized_streams ast
-      JOIN sports_events se ON ast.event_id = se.id
       WHERE ast.id = stream_schedules.stream_id
-        AND se.organizer_id = auth.uid()
+        AND ast.admin_id = auth.uid()
     )
   );
 
--- Atualização: organizador gerencia schedule
-CREATE POLICY "Organizers manage stream schedules"
+-- Atualização: admin da stream gerencia schedule
+CREATE POLICY "Stream admins manage schedules"
   ON public.stream_schedules FOR ALL
   TO authenticated
   USING (
     EXISTS (
       SELECT 1 
       FROM authorized_streams ast
-      JOIN sports_events se ON ast.event_id = se.id
       WHERE ast.id = stream_schedules.stream_id
-        AND se.organizer_id = auth.uid()
+        AND ast.admin_id = auth.uid()
     )
   );
 
@@ -467,9 +464,9 @@ CREATE POLICY "Users can follow others"
       -- Não pode seguir se estiver bloqueado
       SELECT 1 FROM user_blocks ub
       WHERE (
-        (ub.blocker_id = user_followers.followed_id AND ub.blocked_id = auth.uid())
+        (ub.blocker_id = user_followers.following_id AND ub.blocked_id = auth.uid())
         OR
-        (ub.blocked_id = user_followers.followed_id AND ub.blocker_id = auth.uid())
+        (ub.blocked_id = user_followers.following_id AND ub.blocker_id = auth.uid())
       )
     )
   );

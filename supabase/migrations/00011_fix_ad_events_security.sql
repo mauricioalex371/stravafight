@@ -34,7 +34,7 @@ CREATE POLICY "Campaign owners view ad events"
       SELECT 1 
       FROM ad_campaigns ac
       JOIN commercial_profiles cp ON ac.advertiser_id = cp.id
-      WHERE ac.id = ad_events.ad_id
+      WHERE ac.id = ad_events.campaign_id
         AND cp.user_id = auth.uid()
     )
     OR is_admin()
@@ -47,16 +47,16 @@ CREATE POLICY "Campaign owners view ad events"
 CREATE TABLE IF NOT EXISTS public.ad_events_rate_limit (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL,
-  ad_id UUID NOT NULL,
+  campaign_id UUID NOT NULL,
   event_type TEXT NOT NULL,
   event_count INTEGER DEFAULT 1,
   window_start TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  UNIQUE(user_id, ad_id, event_type, window_start)
+  UNIQUE(user_id, campaign_id, event_type, window_start)
 );
 
 CREATE INDEX idx_ad_events_rate_limit_window 
-  ON ad_events_rate_limit(user_id, ad_id, window_start);
+  ON ad_events_rate_limit(user_id, campaign_id, window_start);
 
 COMMENT ON TABLE ad_events_rate_limit IS 
 'Rate limiting para eventos de anúncios. Janela de 1 minuto, máximo 5 eventos por tipo.';
@@ -76,15 +76,15 @@ DECLARE
   ad_exists BOOLEAN;
   campaign_active BOOLEAN;
 BEGIN
-  -- Validação 1: ad_id existe e campanha está ativa
+  -- Validação 1: campaign_id existe e campanha está ativa
   SELECT EXISTS(
     SELECT 1 FROM ad_campaigns 
-    WHERE id = NEW.ad_id 
+    WHERE id = NEW.campaign_id 
       AND status = 'ACTIVE'
   ) INTO campaign_active;
 
   IF NOT campaign_active THEN
-    RAISE EXCEPTION 'Campanha não existe ou não está ativa: %', NEW.ad_id;
+    RAISE EXCEPTION 'Campanha não existe ou não está ativa: %', NEW.campaign_id;
   END IF;
 
   -- Validação 2: user_id é válido
@@ -98,9 +98,9 @@ BEGIN
     window_start := date_trunc('minute', NOW());
 
     -- UPSERT atômico ANTES de checar (evita race condition)
-    INSERT INTO ad_events_rate_limit (user_id, ad_id, event_type, window_start, event_count)
-    VALUES (NEW.user_id, NEW.ad_id, NEW.event_type, window_start, 1)
-    ON CONFLICT (user_id, ad_id, event_type, window_start) 
+    INSERT INTO ad_events_rate_limit (user_id, campaign_id, event_type, window_start, event_count)
+    VALUES (NEW.user_id, NEW.campaign_id, NEW.event_type, window_start, 1)
+    ON CONFLICT (user_id, campaign_id, event_type, window_start) 
     DO UPDATE SET event_count = ad_events_rate_limit.event_count + 1
     RETURNING event_count INTO recent_count;
 
@@ -167,7 +167,7 @@ CREATE POLICY "System manages rate limits"
 -- ============================================================================
 
 -- Função para incrementar impressões
-CREATE OR REPLACE FUNCTION increment_ad_impressions(ad_id UUID)
+CREATE OR REPLACE FUNCTION increment_ad_impressions(campaign_id UUID)
 RETURNS BOOLEAN
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -178,7 +178,7 @@ BEGIN
   UPDATE ad_campaigns
   SET impressions_count = COALESCE(impressions_count, 0) + 1,
       updated_at = NOW()
-  WHERE id = ad_id
+  WHERE id = campaign_id
     AND status = 'ACTIVE';
 
   GET DIAGNOSTICS rows_affected = ROW_COUNT;
@@ -187,7 +187,7 @@ END;
 $$;
 
 -- Função para incrementar cliques
-CREATE OR REPLACE FUNCTION increment_ad_clicks(ad_id UUID)
+CREATE OR REPLACE FUNCTION increment_ad_clicks(campaign_id UUID)
 RETURNS BOOLEAN
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -203,7 +203,7 @@ BEGIN
         ELSE 0 
       END,
       updated_at = NOW()
-  WHERE id = ad_id
+  WHERE id = campaign_id
     AND status = 'ACTIVE';
 
   GET DIAGNOSTICS rows_affected = ROW_COUNT;
@@ -222,9 +222,9 @@ SECURITY DEFINER
 AS $$
 BEGIN
   IF NEW.event_type = 'impression' THEN
-    PERFORM increment_ad_impressions(NEW.ad_id);
+    PERFORM increment_ad_impressions(NEW.campaign_id);
   ELSIF NEW.event_type = 'click' THEN
-    PERFORM increment_ad_clicks(NEW.ad_id);
+    PERFORM increment_ad_clicks(NEW.campaign_id);
   END IF;
   
   RETURN NEW;

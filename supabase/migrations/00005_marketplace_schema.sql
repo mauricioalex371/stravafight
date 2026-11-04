@@ -125,9 +125,13 @@ CREATE TABLE IF NOT EXISTS public.marketplace_carts (
     user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
     status TEXT DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'CONVERTED', 'ABANDONED')),
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE(user_id, status) WHERE status = 'ACTIVE'
+    updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Partial unique index: only one active cart per user
+CREATE UNIQUE INDEX IF NOT EXISTS idx_marketplace_carts_user_active 
+    ON public.marketplace_carts(user_id) 
+    WHERE status = 'ACTIVE';
 
 -- 7. ITENS DO CARRINHO
 CREATE TABLE IF NOT EXISTS public.marketplace_cart_items (

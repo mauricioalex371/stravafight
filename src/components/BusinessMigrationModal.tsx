@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Database, AlertCircle, CheckCircle2, Loader2, RefreshCw, AlertTriangle } from 'lucide-react';
 import { BusinessService } from '../services/businessService';
-import { businessMigrationService, type MigrationReport } from '../services/businessMigrationService';
+import { businessMigrationService, type MigrationResult } from '../services/businessMigrationService';
 
 interface BusinessMigrationModalProps {
   isOpen: boolean;
@@ -25,7 +25,7 @@ export const BusinessMigrationModal: React.FC<BusinessMigrationModalProps> = ({
 }) => {
   const [step, setStep] = useState<MigrationStep>('detect');
   const [hasLegacyData, setHasLegacyData] = useState(false);
-  const [migrationReport, setMigrationReport] = useState<MigrationReport | null>(null);
+  const [migrationReport, setMigrationReport] = useState<MigrationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isDetecting, setIsDetecting] = useState(true);
 
@@ -39,7 +39,7 @@ export const BusinessMigrationModal: React.FC<BusinessMigrationModalProps> = ({
   const detectLegacyData = async () => {
     setIsDetecting(true);
     try {
-      const hasData = BusinessService.hasLegacyBusinessData(userId);
+      const hasData = await BusinessService.hasLegacyBusinessData();
       setHasLegacyData(hasData);
 
       if (hasData) {
@@ -47,23 +47,14 @@ export const BusinessMigrationModal: React.FC<BusinessMigrationModalProps> = ({
       } else {
         setStep('complete');
         setMigrationReport({
-          userId,
-          startTime: Date.now(),
-          endTime: Date.now(),
-          duration: 0,
-          totalRecords: 0,
-          successfulRecords: 0,
-          failedRecords: 0,
-          skippedRecords: 0,
-          backupCreated: false,
+          status: 'completed',
+          totalItems: 0,
+          migratedItems: 0,
+          skippedItems: 0,
+          failedItems: 0,
           errors: [],
-          details: {
-            profiles: { total: 0, success: 0, failed: 0, errors: [] },
-            campaigns: { total: 0, success: 0, failed: 0, errors: [] },
-            products: { total: 0, success: 0, failed: 0, errors: [] },
-            opportunities: { total: 0, success: 0, failed: 0, errors: [] },
-            events: { total: 0, success: 0, failed: 0, errors: [] }
-          }
+          startedAt: Date.now(),
+          completedAt: Date.now()
         });
       }
     } catch (err) {
@@ -80,11 +71,11 @@ export const BusinessMigrationModal: React.FC<BusinessMigrationModalProps> = ({
     setError(null);
 
     try {
-      const report = await BusinessService.migrateBusinessData(userId, accessToken);
+      const report = await BusinessService.migrateBusinessData();
       setMigrationReport(report);
 
-      if (report.failedRecords > 0) {
-        setError(`Migração concluída com ${report.failedRecords} erro(s)`);
+      if (report.failedItems > 0) {
+        setError(`Migração concluída com ${report.failedItems} erro(s)`);
         setStep('error');
       } else {
         setStep('complete');
@@ -98,7 +89,7 @@ export const BusinessMigrationModal: React.FC<BusinessMigrationModalProps> = ({
 
   const handleRollback = async () => {
     try {
-      await BusinessService.rollbackMigration(userId);
+      await BusinessService.rollbackMigration();
       setStep('detect');
       detectLegacyData();
     } catch (err) {
@@ -273,16 +264,9 @@ export const BusinessMigrationModal: React.FC<BusinessMigrationModalProps> = ({
                   <div className="flex justify-between text-sm">
                     <span className="text-[#64748B]">Progresso:</span>
                     <span className="font-semibold text-white">
-                      {migrationReport.successfulRecords} / {migrationReport.totalRecords}
+                      {migrationReport.migratedItems} / {migrationReport.totalItems}
                     </span>
                   </div>
-                  {migrationReport.details && (
-                    <div className="space-y-1 text-xs text-[#94A3B8] pt-2 border-t border-[#334155]">
-                      <div>Perfis: {migrationReport.details.profiles.success}/{migrationReport.details.profiles.total}</div>
-                      <div>Campanhas: {migrationReport.details.campaigns.success}/{migrationReport.details.campaigns.total}</div>
-                      <div>Produtos: {migrationReport.details.products.success}/{migrationReport.details.products.total}</div>
-                    </div>
-                  )}
                 </div>
               )}
             </div>
@@ -307,30 +291,30 @@ export const BusinessMigrationModal: React.FC<BusinessMigrationModalProps> = ({
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
                     <div className="text-2xl font-bold text-[#10B981]">
-                      {migrationReport.successfulRecords}
+                      {migrationReport.migratedItems}
                     </div>
                     <div className="text-xs text-[#64748B]">Sucesso</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-[#F59E0B]">
-                      {migrationReport.skippedRecords}
+                      {migrationReport.skippedItems}
                     </div>
                     <div className="text-xs text-[#64748B]">Ignorados</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-[#EF4444]">
-                      {migrationReport.failedRecords}
+                      {migrationReport.failedItems}
                     </div>
                     <div className="text-xs text-[#64748B]">Falhas</div>
                   </div>
                 </div>
 
-                {migrationReport.duration && (
+                {migrationReport.startedAt && migrationReport.completedAt && (
                   <div className="pt-3 border-t border-[#334155] text-sm text-[#94A3B8]">
                     <div className="flex justify-between">
                       <span>Tempo de migração:</span>
                       <span className="font-semibold text-white">
-                        {(migrationReport.duration / 1000).toFixed(1)}s
+                        {((migrationReport.completedAt - migrationReport.startedAt) / 1000).toFixed(1)}s
                       </span>
                     </div>
                   </div>
@@ -363,7 +347,7 @@ export const BusinessMigrationModal: React.FC<BusinessMigrationModalProps> = ({
                 <div className="bg-[#0F172A] border border-[#EF4444]/30 rounded-lg p-4">
                   <h4 className="font-semibold text-white mb-2">Detalhes dos Erros:</h4>
                   <div className="space-y-1 text-xs text-[#94A3B8] max-h-32 overflow-y-auto">
-                    {migrationReport.errors.map((err, idx) => (
+                    {migrationReport.errors.map((err: string, idx: number) => (
                       <div key={idx} className="py-1">• {err}</div>
                     ))}
                   </div>

@@ -104,9 +104,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       syncInitializedRef.current = true;
       currentUserIdRef.current = userId;
 
-      // Iniciar background sync (auto-sync a cada 30s)
-      BusinessService.startBackgroundSync();
-
       // Sincronizar operações pendentes imediatamente
       await BusinessService.syncNow();
 
@@ -130,9 +127,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       console.info('[AuthContext] Encerrando SF Business Sync...');
-
-      // Parar background sync
-      BusinessService.stopBackgroundSync();
 
       // Sincronizar operações pendentes antes de encerrar
       await BusinessService.syncNow();
@@ -209,16 +203,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             username: profile.username,
             fullName: profile.full_name,
             role: profile.role,
-            avatar: profile.avatar_url,
-            coverPhoto: profile.cover_url,
+            avatarUrl: profile.avatar_url,
+            coverUrl: profile.cover_url,
             bio: profile.bio,
-            modality: profile.primary_modality,
-            belt: profile.belt_rank,
-            academy: profile.academy,
+            modalities: [profile.primary_modality || 'MMA'],
+            affiliatedAcademyName: profile.academy,
             location: profile.location,
             followersCount: profile.followers_count || 0,
             followingCount: profile.following_count || 0,
             postsCount: profile.posts_count || 0,
+            friendsCount: 0,
+            streakDays: 0,
+            totalCheckIns: 0,
+            xpPoints: 0,
+            beltRankSocial: profile.belt_rank || 'Iniciante',
+            badges: [],
             isVerified: profile.is_verified || false
           };
         } else {
@@ -245,7 +244,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       // Detectar dados legados e mostrar modal de migração
       if (!migrationCheckedRef.current) {
-        const hasLegacy = BusinessService.hasLegacyBusinessData(authUser.id);
+        const hasLegacy = await BusinessService.hasLegacyBusinessData();
         if (hasLegacy) {
           console.info('[AuthContext] Dados legados detectados, abrindo modal de migração');
           setShowMigrationModal(true);
@@ -388,16 +387,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 username: profile.username,
                 fullName: profile.full_name,
                 role: profile.role,
-                avatar: profile.avatar_url,
-                coverPhoto: profile.cover_url,
+                avatarUrl: profile.avatar_url,
+                coverUrl: profile.cover_url,
                 bio: profile.bio,
-                modality: profile.primary_modality,
-                belt: profile.belt_rank,
-                academy: profile.academy,
+                modalities: [profile.primary_modality || 'MMA'],
+                affiliatedAcademyName: profile.academy,
                 location: profile.location,
                 followersCount: profile.followers_count || 0,
                 followingCount: profile.following_count || 0,
                 postsCount: profile.posts_count || 0,
+                friendsCount: 0,
+                streakDays: 0,
+                totalCheckIns: 0,
+                xpPoints: 0,
+                beltRankSocial: profile.belt_rank || 'Iniciante',
+                badges: [],
                 isVerified: profile.is_verified || false
               };
             } else {

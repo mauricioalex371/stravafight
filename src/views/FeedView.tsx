@@ -444,7 +444,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
             {shouldShowFirstAd && (() => {
               const adId = activeAds[0].id;
               if (!impressionsRecorded.current.has(adId)) {
-                BusinessService.recordAdImpression(adId, currentUser.id);
+                BusinessService.recordAdImpression(adId, currentUser.id, 'FEED');
                 impressionsRecorded.current.add(adId);
               }
               return (
@@ -458,7 +458,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
             {shouldShowSecondAd && (() => {
               const adId = activeAds[1].id;
               if (!impressionsRecorded.current.has(adId)) {
-                BusinessService.recordAdImpression(adId, currentUser.id);
+                BusinessService.recordAdImpression(adId, currentUser.id, 'FEED');
                 impressionsRecorded.current.add(adId);
               }
               return (

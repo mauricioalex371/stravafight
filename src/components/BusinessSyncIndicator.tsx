@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { Cloud, CloudOff, Loader2, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
 import { BusinessService } from '../services/businessService';
-import type { SyncStatus } from '../services/businessSyncService';
+import type { SyncState } from '../services/businessSyncService';
 
 interface BusinessSyncIndicatorProps {
   compact?: boolean;
@@ -17,7 +17,7 @@ export const BusinessSyncIndicator: React.FC<BusinessSyncIndicatorProps> = ({
   compact = false,
   showLabel = true
 }) => {
-  const [syncStatus, setSyncStatus] = useState<SyncStatus>(BusinessService.getSyncStatus());
+  const [syncStatus, setSyncStatus] = useState<SyncState>(BusinessService.getSyncStatus());
   const [isManualSyncing, setIsManualSyncing] = useState(false);
 
   // Atualizar status a cada segundo
@@ -163,7 +163,7 @@ export const BusinessSyncIndicator: React.FC<BusinessSyncIndicatorProps> = ({
  * Versão Badge compacta para Navbar
  */
 export const BusinessSyncBadge: React.FC = () => {
-  const [syncStatus, setSyncStatus] = useState<SyncStatus>(BusinessService.getSyncStatus());
+  const [syncStatus, setSyncStatus] = useState<SyncState>(BusinessService.getSyncStatus());
 
   useEffect(() => {
     const interval = setInterval(() => {

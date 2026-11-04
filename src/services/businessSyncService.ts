@@ -19,6 +19,10 @@ export type SyncOperation =
   | 'CREATE_PRODUCT'
   | 'UPDATE_PRODUCT'
   | 'DELETE_PRODUCT'
+  | 'CREATE_OPPORTUNITY'
+  | 'UPDATE_OPPORTUNITY'
+  | 'CREATE_EVENT'
+  | 'UPDATE_EVENT'
   | 'LOG_AD_EVENT';
 
 export type SyncStatus = 
@@ -365,6 +369,22 @@ class BusinessSyncService {
         await this.deleteProduct(item);
         break;
 
+      case 'CREATE_OPPORTUNITY':
+        await this.createOpportunity(item);
+        break;
+
+      case 'UPDATE_OPPORTUNITY':
+        await this.updateOpportunity(item);
+        break;
+
+      case 'CREATE_EVENT':
+        await this.createEvent(item);
+        break;
+
+      case 'UPDATE_EVENT':
+        await this.updateEvent(item);
+        break;
+
       case 'LOG_AD_EVENT':
         await this.logAdEvent(item);
         break;
@@ -477,6 +497,50 @@ class BusinessSyncService {
       user_id: item.userId,
       timestamp: item.data.timestamp || new Date().toISOString(),
     });
+
+    if (error) throw error;
+  }
+
+  private async createOpportunity(item: SyncQueueItem): Promise<void> {
+    const { error } = await supabase
+      .from('sf_business_opportunities')
+      .insert({
+        ...item.data,
+        user_id: item.userId,
+        id: item.entityId,
+      });
+
+    if (error) throw error;
+  }
+
+  private async updateOpportunity(item: SyncQueueItem): Promise<void> {
+    const { error } = await supabase
+      .from('sf_business_opportunities')
+      .update(item.data)
+      .eq('id', item.entityId)
+      .eq('user_id', item.userId);
+
+    if (error) throw error;
+  }
+
+  private async createEvent(item: SyncQueueItem): Promise<void> {
+    const { error } = await supabase
+      .from('sf_business_events')
+      .insert({
+        ...item.data,
+        user_id: item.userId,
+        id: item.entityId,
+      });
+
+    if (error) throw error;
+  }
+
+  private async updateEvent(item: SyncQueueItem): Promise<void> {
+    const { error } = await supabase
+      .from('sf_business_events')
+      .update(item.data)
+      .eq('id', item.entityId)
+      .eq('user_id', item.userId);
 
     if (error) throw error;
   }

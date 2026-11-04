@@ -12,8 +12,8 @@ import {
   BusinessLanguage
 } from '../types';
 import { generateUUID } from '../utils/formatters';
-import { businessSyncService, type SyncStatus } from './businessSyncService';
-import { businessMigrationService, type MigrationReport } from './businessMigrationService';
+import { businessSyncService, type SyncState } from './businessSyncService';
+import { businessMigrationService, type MigrationResult } from './businessMigrationService';
 
 const BIZ_STORAGE_KEYS = {
   PROFILES: 'sfb_commercial_profiles',
@@ -859,23 +859,8 @@ export class BusinessService {
   /**
    * Get current sync status for monitoring UI
    */
-  static getSyncStatus(): SyncStatus {
-    return businessSyncService.getStatus();
-  }
-
-  /**
-   * Start background sync service (online only)
-   * Automatically syncs pending operations every 30s
-   */
-  static startBackgroundSync(): void {
-    businessSyncService.startBackgroundSync();
-  }
-
-  /**
-   * Stop background sync service
-   */
-  static stopBackgroundSync(): void {
-    businessSyncService.stopBackgroundSync();
+  static getSyncStatus(): SyncState {
+    return businessSyncService.getState();
   }
 
   /**
@@ -883,31 +868,30 @@ export class BusinessService {
    * Useful for "Sync Now" button in UI
    */
   static async syncNow(): Promise<void> {
-    await businessSyncService.syncPendingOperations();
+    await businessSyncService.forceSyncNow();
   }
 
   /**
    * Check if user has legacy localStorage-only business data
    * Should be called on app startup to prompt migration UI
    */
-  static hasLegacyBusinessData(userId: string): boolean {
-    return businessMigrationService.detectLegacyData(userId);
+  static async hasLegacyBusinessData(): Promise<boolean> {
+    return await businessMigrationService.hasLegacyData();
   }
 
   /**
    * Migrate all legacy business data from localStorage to Supabase
    * Returns detailed migration report with success/failure counts
    */
-  static async migrateBusinessData(userId: string, supabaseAccessToken: string): Promise<MigrationReport> {
-    return await businessMigrationService.migrateAllData(userId, supabaseAccessToken);
+  static async migrateBusinessData(): Promise<MigrationResult> {
+    return await businessMigrationService.migrate();
   }
 
   /**
-   * Rollback migration - restore localStorage data from backup
-   * Use if migration fails or user wants to undo migration
+   * Rollback migration if something went wrong
    */
-  static async rollbackMigration(userId: string): Promise<void> {
-    await businessMigrationService.rollbackMigration(userId);
+  static async rollbackMigration(): Promise<void> {
+    await businessMigrationService.rollback();
   }
 
   /**

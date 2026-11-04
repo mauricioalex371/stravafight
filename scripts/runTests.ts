@@ -8,6 +8,9 @@ import { runBusinessAuthTests } from '../src/__tests__/businessAuth.test';
 import { runBusinessSyncTests } from '../src/__tests__/businessSync.test';
 import { runBusinessMigrationTests } from '../src/__tests__/businessMigration.test';
 import { runBusinessCRUDTests } from '../src/__tests__/businessCRUD.test';
+import { runSecurityTests } from '../src/__tests__/security.test';
+import { runModerationTests } from '../src/__tests__/moderation.test';
+// import { runSearchTests } from '../src/__tests__/search.test'; // Depende de supabase client
 
 console.log('🥋 ============================================================');
 console.log('🥋 STRAVA FIGHT — SUÍTE DE TESTES SF BUSINESS');
@@ -17,7 +20,11 @@ const allSuites = [
   { name: '1. SF Business — Autenticação e Ciclo de Vida', runner: runBusinessAuthTests },
   { name: '2. SF Business — Sincronização e Fila', runner: runBusinessSyncTests },
   { name: '3. SF Business — Migração e Backup', runner: runBusinessMigrationTests },
-  { name: '4. SF Business — CRUD e Persistência', runner: runBusinessCRUDTests }
+  { name: '4. SF Business — CRUD e Persistência', runner: runBusinessCRUDTests },
+  { name: '5. Segurança — XSS, SQL Injection, Rate Limiting', runner: runSecurityTests },
+  { name: '6. Moderação — Denúncias, Bloqueios, Ações Admin', runner: runModerationTests }
+  // NOTA: Search tests comentados devido a dependência circular com supabase
+  // { name: '7. Busca — Filtros, Pesquisa de Usuários', runner: runSearchTests }
 ];
 
 let totalTests = 0;

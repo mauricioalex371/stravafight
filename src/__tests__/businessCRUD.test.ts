@@ -23,8 +23,8 @@ class MockBusinessService {
     return this.currentUserId;
   }
 
-  // Create operations
-  async createCampaignWithSync(campaign: any): Promise<{success: boolean; error?: string}> {
+  // Create operations (síncronas para testes mais simples)
+  createCampaignWithSync(campaign: any): {success: boolean; error?: string} {
     if (!this.currentUserId) {
       return { success: false, error: 'Usuário não autenticado' };
     }
@@ -45,7 +45,7 @@ class MockBusinessService {
     return { success: true };
   }
 
-  async updateCampaignWithSync(campaign: any): Promise<{success: boolean; error?: string}> {
+  updateCampaignWithSync(campaign: any): {success: boolean; error?: string} {
     if (!this.currentUserId) {
       return { success: false, error: 'Usuário não autenticado' };
     }
@@ -70,7 +70,7 @@ class MockBusinessService {
     return { success: true };
   }
 
-  async createProductWithSync(product: any): Promise<{success: boolean; error?: string}> {
+  createProductWithSync(product: any): {success: boolean; error?: string} {
     if (!this.currentUserId) {
       return { success: false, error: 'Usuário não autenticado' };
     }
@@ -89,7 +89,7 @@ class MockBusinessService {
     return { success: true };
   }
 
-  async deleteProductWithSync(productId: string): Promise<{success: boolean; error?: string}> {
+  deleteProductWithSync(productId: string): {success: boolean; error?: string} {
     if (!this.currentUserId) {
       return { success: false, error: 'Usuário não autenticado' };
     }
@@ -148,31 +148,38 @@ export function runBusinessCRUDTests(): TestResult[] {
       status: 'ATIVA'
     };
 
-    const result = mockService.createCampaignWithSync(campaign).then(r => r);
+    const result = mockService.createCampaignWithSync(campaign);
     
-    result.then(r => {
-      if (!r.success) {
-        throw new Error(`Create falhou: ${r.error}`);
-      }
+    // Verificar resultado da operação
+    if (!result.success) {
+      throw new Error(`Create falhou: ${result.error}`);
+    }
 
-      const campaigns = mockService.getCampaigns();
-      if (campaigns.length !== 1) {
-        throw new Error(`Esperado 1 campanha, encontrado ${campaigns.length}`);
-      }
-      if (campaigns[0].id !== 'camp_1') {
-        throw new Error('Campanha não foi salva corretamente');
-      }
+    // Verificar localStorage
+    const campaigns = mockService.getCampaigns();
+    if (campaigns.length !== 1) {
+      throw new Error(`Esperado 1 campanha, encontrado ${campaigns.length}`);
+    }
+    if (campaigns[0].id !== 'camp_1') {
+      throw new Error('Campanha não foi salva corretamente');
+    }
+    if (campaigns[0].name !== 'Test Campaign') {
+      throw new Error('Nome da campanha incorreto');
+    }
 
-      const queue = mockService.getSyncQueue();
-      if (queue.length !== 1) {
-        throw new Error(`Esperado 1 operação na fila, encontrado ${queue.length}`);
-      }
-      if (queue[0].operation !== 'CREATE_CAMPAIGN') {
-        throw new Error('Operação incorreta na fila de sync');
-      }
+    // Verificar fila de sync
+    const queue = mockService.getSyncQueue();
+    if (queue.length !== 1) {
+      throw new Error(`Esperado 1 operação na fila, encontrado ${queue.length}`);
+    }
+    if (queue[0].operation !== 'CREATE_CAMPAIGN') {
+      throw new Error('Operação incorreta na fila de sync');
+    }
+    if (queue[0].entityId !== 'camp_1') {
+      throw new Error('EntityId incorreto na fila');
+    }
 
-      results.push({ name: 'CREATE salva localmente e enfileira sync', passed: true });
-    });
+    results.push({ name: 'CREATE salva localmente e enfileira sync', passed: true });
   } catch (error: any) {
     results.push({ name: 'CREATE salva localmente e enfileira sync', passed: false, error: error.message });
   }
@@ -196,29 +203,39 @@ export function runBusinessCRUDTests(): TestResult[] {
       status: 'PAUSADA'
     };
 
-    const result = mockService.updateCampaignWithSync(updated).then(r => r);
+    const result = mockService.updateCampaignWithSync(updated);
     
-    result.then(r => {
-      if (!r.success) {
-        throw new Error(`Update falhou: ${r.error}`);
-      }
+    // Verificar resultado
+    if (!result.success) {
+      throw new Error(`Update falhou: ${result.error}`);
+    }
 
-      const campaigns = mockService.getCampaigns();
-      if (campaigns[0].name !== 'Updated Campaign') {
-        throw new Error('Campanha não foi atualizada');
-      }
-      if (campaigns[0].status !== 'PAUSADA') {
-        throw new Error('Status não foi atualizado');
-      }
+    // Verificar que o registro foi atualizado
+    const campaigns = mockService.getCampaigns();
+    if (campaigns.length !== 1) {
+      throw new Error(`Esperado 1 campanha, encontrado ${campaigns.length}`);
+    }
+    if (campaigns[0].name !== 'Updated Campaign') {
+      throw new Error('Campanha não foi atualizada');
+    }
+    if (campaigns[0].status !== 'PAUSADA') {
+      throw new Error('Status não foi atualizado');
+    }
 
-      const queue = mockService.getSyncQueue();
-      const updateOp = queue.find(op => op.operation === 'UPDATE_CAMPAIGN');
-      if (!updateOp) {
-        throw new Error('Operação UPDATE não foi enfileirada');
-      }
+    // Verificar fila de sync
+    const queue = mockService.getSyncQueue();
+    if (queue.length !== 2) { // CREATE + UPDATE
+      throw new Error(`Esperado 2 operações na fila, encontrado ${queue.length}`);
+    }
+    const updateOp = queue.find(op => op.operation === 'UPDATE_CAMPAIGN');
+    if (!updateOp) {
+      throw new Error('Operação UPDATE não foi enfileirada');
+    }
+    if (updateOp.entityId !== 'camp_2') {
+      throw new Error('EntityId incorreto na operação UPDATE');
+    }
 
-      results.push({ name: 'UPDATE modifica registro e enfileira sync', passed: true });
-    });
+    results.push({ name: 'UPDATE modifica registro e enfileira sync', passed: true });
   } catch (error: any) {
     results.push({ name: 'UPDATE modifica registro e enfileira sync', passed: false, error: error.message });
   }
@@ -236,26 +253,39 @@ export function runBusinessCRUDTests(): TestResult[] {
 
     mockService.createProductWithSync(product);
     
-    const deleteResult = mockService.deleteProductWithSync('prod_1').then(r => r);
+    // Verificar que produto foi criado
+    let products = mockService.getProducts();
+    if (products.length !== 1) {
+      throw new Error(`Esperado 1 produto após CREATE, encontrado ${products.length}`);
+    }
+
+    const deleteResult = mockService.deleteProductWithSync('prod_1');
     
-    deleteResult.then(r => {
-      if (!r.success) {
-        throw new Error(`Delete falhou: ${r.error}`);
-      }
+    // Verificar resultado
+    if (!deleteResult.success) {
+      throw new Error(`Delete falhou: ${deleteResult.error}`);
+    }
 
-      const products = mockService.getProducts();
-      if (products.length !== 0) {
-        throw new Error(`Esperado 0 produtos, encontrado ${products.length}`);
-      }
+    // Verificar que produto foi removido
+    products = mockService.getProducts();
+    if (products.length !== 0) {
+      throw new Error(`Esperado 0 produtos após DELETE, encontrado ${products.length}`);
+    }
 
-      const queue = mockService.getSyncQueue();
-      const deleteOp = queue.find(op => op.operation === 'DELETE_PRODUCT');
-      if (!deleteOp) {
-        throw new Error('Operação DELETE não foi enfileirada');
-      }
+    // Verificar fila de sync
+    const queue = mockService.getSyncQueue();
+    if (queue.length !== 2) { // CREATE + DELETE
+      throw new Error(`Esperado 2 operações na fila, encontrado ${queue.length}`);
+    }
+    const deleteOp = queue.find(op => op.operation === 'DELETE_PRODUCT');
+    if (!deleteOp) {
+      throw new Error('Operação DELETE não foi enfileirada');
+    }
+    if (deleteOp.entityId !== 'prod_1') {
+      throw new Error('EntityId incorreto na operação DELETE');
+    }
 
-      results.push({ name: 'DELETE remove registro e enfileira sync', passed: true });
-    });
+    results.push({ name: 'DELETE remove registro e enfileira sync', passed: true });
   } catch (error: any) {
     results.push({ name: 'DELETE remove registro e enfileira sync', passed: false, error: error.message });
   }
@@ -270,23 +300,29 @@ export function runBusinessCRUDTests(): TestResult[] {
       name: 'Unauthorized Campaign'
     };
 
-    const result = mockService.createCampaignWithSync(campaign).then(r => r);
+    const result = mockService.createCampaignWithSync(campaign);
     
-    result.then(r => {
-      if (r.success) {
-        throw new Error('Operação deveria falhar sem autenticação');
-      }
-      if (!r.error || !r.error.includes('autenticado')) {
-        throw new Error('Mensagem de erro incorreta');
-      }
+    // Verificar que operação falhou
+    if (result.success) {
+      throw new Error('Operação deveria falhar sem autenticação');
+    }
+    if (!result.error || !result.error.includes('autenticado')) {
+      throw new Error(`Mensagem de erro incorreta: ${result.error}`);
+    }
 
-      const campaigns = mockService.getCampaigns();
-      if (campaigns.length !== 0) {
-        throw new Error('Campanha foi salva mesmo sem autenticação');
-      }
+    // Verificar que nada foi salvo
+    const campaigns = mockService.getCampaigns();
+    if (campaigns.length !== 0) {
+      throw new Error('Campanha foi salva mesmo sem autenticação');
+    }
 
-      results.push({ name: 'Operações falham sem autenticação', passed: true });
-    });
+    // Verificar que nada foi enfileirado
+    const queue = mockService.getSyncQueue();
+    if (queue.length !== 0) {
+      throw new Error('Operação foi enfileirada mesmo sem autenticação');
+    }
+
+    results.push({ name: 'Operações falham sem autenticação', passed: true });
   } catch (error: any) {
     results.push({ name: 'Operações falham sem autenticação', passed: false, error: error.message });
   }
@@ -301,18 +337,23 @@ export function runBusinessCRUDTests(): TestResult[] {
       name: 'Non Existent Campaign'
     };
 
-    const result = mockService.updateCampaignWithSync(nonExistent).then(r => r);
+    const result = mockService.updateCampaignWithSync(nonExistent);
     
-    result.then(r => {
-      if (r.success) {
-        throw new Error('Update deveria falhar para registro inexistente');
-      }
-      if (!r.error || !r.error.includes('não encontrada')) {
-        throw new Error('Mensagem de erro incorreta para registro inexistente');
-      }
+    // Verificar que operação falhou
+    if (result.success) {
+      throw new Error('Update deveria falhar para registro inexistente');
+    }
+    if (!result.error || !result.error.includes('não encontrada')) {
+      throw new Error(`Mensagem de erro incorreta: ${result.error}`);
+    }
 
-      results.push({ name: 'UPDATE falha para registro inexistente', passed: true });
-    });
+    // Verificar que fila não foi poluída com operação inválida
+    const queue = mockService.getSyncQueue();
+    if (queue.length !== 0) {
+      throw new Error('Operação UPDATE inválida foi enfileirada');
+    }
+
+    results.push({ name: 'UPDATE falha para registro inexistente', passed: true });
   } catch (error: any) {
     results.push({ name: 'UPDATE falha para registro inexistente', passed: false, error: error.message });
   }
@@ -324,31 +365,40 @@ export function runBusinessCRUDTests(): TestResult[] {
 
     const campaign1 = { id: 'c1', name: 'Campaign 1' };
     const campaign2 = { id: 'c2', name: 'Campaign 2' };
-    const product1 = { id: 'p1', title: 'Product 1' };
+    const product1 = { id: 'p1', title: 'Product 1', price: 50 };
 
-    Promise.all([
-      mockService.createCampaignWithSync(campaign1),
-      mockService.createCampaignWithSync(campaign2),
-      mockService.createProductWithSync(product1)
-    ]).then(() => {
-      const queue = mockService.getSyncQueue();
-      
-      if (queue.length !== 3) {
-        throw new Error(`Esperado 3 operações na fila, encontrado ${queue.length}`);
-      }
+    mockService.createCampaignWithSync(campaign1);
+    mockService.createCampaignWithSync(campaign2);
+    mockService.createProductWithSync(product1);
 
-      const campaignOps = queue.filter(op => op.operation === 'CREATE_CAMPAIGN');
-      const productOps = queue.filter(op => op.operation === 'CREATE_PRODUCT');
+    // Verificar dados salvos
+    const campaigns = mockService.getCampaigns();
+    const products = mockService.getProducts();
+    if (campaigns.length !== 2) {
+      throw new Error(`Esperado 2 campanhas, encontrado ${campaigns.length}`);
+    }
+    if (products.length !== 1) {
+      throw new Error(`Esperado 1 produto, encontrado ${products.length}`);
+    }
 
-      if (campaignOps.length !== 2) {
-        throw new Error(`Esperado 2 operações de campanha, encontrado ${campaignOps.length}`);
-      }
-      if (productOps.length !== 1) {
-        throw new Error(`Esperado 1 operação de produto, encontrado ${productOps.length}`);
-      }
+    // Verificar fila de sync
+    const queue = mockService.getSyncQueue();
+    
+    if (queue.length !== 3) {
+      throw new Error(`Esperado 3 operações na fila, encontrado ${queue.length}`);
+    }
 
-      results.push({ name: 'Múltiplas operações enfileiradas corretamente', passed: true });
-    });
+    const campaignOps = queue.filter(op => op.operation === 'CREATE_CAMPAIGN');
+    const productOps = queue.filter(op => op.operation === 'CREATE_PRODUCT');
+
+    if (campaignOps.length !== 2) {
+      throw new Error(`Esperado 2 operações de campanha, encontrado ${campaignOps.length}`);
+    }
+    if (productOps.length !== 1) {
+      throw new Error(`Esperado 1 operação de produto, encontrado ${productOps.length}`);
+    }
+
+    results.push({ name: 'Múltiplas operações enfileiradas corretamente', passed: true });
   } catch (error: any) {
     results.push({ name: 'Múltiplas operações enfileiradas corretamente', passed: false, error: error.message });
   }
@@ -359,26 +409,45 @@ export function runBusinessCRUDTests(): TestResult[] {
     mockService.setCurrentUser('user_assoc');
 
     const campaign = { id: 'c_assoc', name: 'Associated Campaign' };
-    const product = { id: 'p_assoc', title: 'Associated Product' };
+    const product = { id: 'p_assoc', title: 'Associated Product', price: 75 };
 
-    Promise.all([
-      mockService.createCampaignWithSync(campaign),
-      mockService.createProductWithSync(product)
-    ]).then(() => {
-      const queue = mockService.getSyncQueue();
-      
-      const allHaveUserId = queue.every(op => op.userId === 'user_assoc');
-      if (!allHaveUserId) {
-        throw new Error('Nem todas as operações têm userId correto');
+    mockService.createCampaignWithSync(campaign);
+    mockService.createProductWithSync(product);
+
+    const queue = mockService.getSyncQueue();
+    
+    // Verificar que todas as operações têm userId
+    if (queue.length !== 2) {
+      throw new Error(`Esperado 2 operações, encontrado ${queue.length}`);
+    }
+
+    const allHaveUserId = queue.every(op => op.userId === 'user_assoc');
+    if (!allHaveUserId) {
+      throw new Error('Nem todas as operações têm userId correto');
+    }
+
+    const wrongUserOps = queue.filter(op => op.userId !== 'user_assoc');
+    if (wrongUserOps.length > 0) {
+      throw new Error(`${wrongUserOps.length} operações com userId incorreto`);
+    }
+
+    // Verificar que cada operação tem os campos obrigatórios
+    for (const op of queue) {
+      if (!op.operation) {
+        throw new Error('Operação sem campo operation');
       }
-
-      const wrongUserOps = queue.filter(op => op.userId !== 'user_assoc');
-      if (wrongUserOps.length > 0) {
-        throw new Error(`${wrongUserOps.length} operações com userId incorreto`);
+      if (!op.entityId) {
+        throw new Error('Operação sem campo entityId');
       }
+      if (!op.userId) {
+        throw new Error('Operação sem campo userId');
+      }
+      if (!op.data) {
+        throw new Error('Operação sem campo data');
+      }
+    }
 
-      results.push({ name: 'UserId associado a todas as operações', passed: true });
-    });
+    results.push({ name: 'UserId associado a todas as operações', passed: true });
   } catch (error: any) {
     results.push({ name: 'UserId associado a todas as operações', passed: false, error: error.message });
   }

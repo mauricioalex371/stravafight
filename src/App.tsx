@@ -955,18 +955,13 @@ export default function App() {
           {currentView === 'direct' && (
             <DirectInboxView
               currentUser={currentUser}
-              conversations={conversations}
-              activeConversationId={activeConvId}
-              onSelectConversation={(id) => setActiveConvId(id)}
-              messages={messages}
-              onSendMessage={handleSendMessage}
-              onBackToInbox={() => setActiveConvId(undefined)}
             />
           )}
 
           {currentView === 'profile' && (
             <ProfileView
               user={currentUser}
+              currentUserId={currentUser.id}
               posts={posts}
               reels={reels}
               achievements={achievements}
@@ -1203,13 +1198,8 @@ export default function App() {
       {/* Notifications Modal */}
       {isNotificationsOpen && (
         <NotificationsModal
-          notifications={notifications}
+          currentUserId={currentUser.id}
           onClose={() => setIsNotificationsOpen(false)}
-          onMarkAllAsRead={() => {
-            const updated = notifications.map((n) => ({ ...n, isRead: true }));
-            setNotifications(updated);
-            StorageService.saveNotifications(updated);
-          }}
           onSelectNotification={(n) => {
             setIsNotificationsOpen(false);
             if (n.type === 'FRIEND_REQUEST') setCurrentView('friends');

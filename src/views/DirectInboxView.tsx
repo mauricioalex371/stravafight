@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Search, 
   Edit3, 
@@ -13,30 +13,185 @@ import {
   CheckCheck
 } from 'lucide-react';
 import { DirectConversation, ChatMessage, UserProfile } from '../types';
-import { generateUUID } from '../utils/formatters';
+import { MessagesService } from '../services/supabase';
 
 interface DirectInboxViewProps {
   currentUser: UserProfile;
-  conversations: DirectConversation[];
-  activeConversationId?: string;
-  onSelectConversation: (convId: string) => void;
-  messages: ChatMessage[];
-  onSendMessage: (convId: string, text: string) => void;
-  onBackToInbox: () => void;
+  onBackToInbox?: () => void;
 }
 
 export const DirectInboxView: React.FC<DirectInboxViewProps> = ({
   currentUser,
-  conversations,
-  activeConversationId,
-  onSelectConversation,
-  messages,
-  onSendMessage,
   onBackToInbox
 }) => {
   const [activeTab, setActiveTab] = useState<'primary' | 'general' | 'requests'>('primary');
   const [search, setSearch] = useState('');
   const [inputText, setInputText] = useState('');
+  const [conversations, setConversations] = useState<DirectConversation[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [activeConversationId, setActiveConversationId] = useState<string | undefined>();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSending, setIsSending] = useState(false);
+
+  // Load conversations
+  useEffect(() => {
+    if (!currentUser?.id) return;
+
+    const loadConversations = async () => {
+      try {
+        setIsLoading(true);
+        const result = await MessagesService.getUserConversations(currentUser.id);
+        const data = result.conversations;
+        
+        // Transform to DirectConversation format
+        const transformed: DirectConversation[] = data.map((conv: any) => {
+          const otherUserId = conv.participant_1_id === currentUser.id 
+            ? conv.participant_2_id 
+            : conv.participant_1_id;
+          
+          return {
+            id: conv.id,
+            otherUser: {
+              id: otherUserId,
+              name: conv.other_user_name || 'Usuário',
+              username: conv.other_user_username || 'user',
+              avatar: conv.other_user_avatar || 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400',
+              modality: conv.other_user_modality || 'Artes Marciais',
+              belt: conv.other_user_belt,
+              isOnline: false,
+              lastActive: ''
+            },
+            lastMessage: {
+              text: conv.last_message_text || '',
+              timestamp: conv.last_message_at 
+                ? new Date(conv.last_message_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+                : '',
+              senderId: conv.last_message_sender_id || '',
+              isRead: conv.last_message_read || false
+            },
+            unreadCount: conv.unread_count || 0,
+            tab: 'primary'
+          };
+        });
+
+        setConversations(transformed);
+      } catch (error) {
+        console.error('Error loading conversations:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadConversations();
+
+    // Realtime não disponível para lista de conversas, apenas polling manual se necessário
+    // Setup realtime for new messages (opcional)
+    // const channel = ... 
+
+    return () => {
+      // Cleanup se necessário
+    };
+  }, [currentUser?.id]);
+
+  // Load messages when conversation is selected
+  useEffect(() => {
+    if (!activeConversationId || !currentUser?.id) return;
+
+    const loadMessages = async () => {
+      try {
+        const result = await MessagesService.getConversationMessages(activeConversationId);
+        const data = result.messages;
+        
+        // Transform to ChatMessage format
+        const transformed: ChatMessage[] = data.map((msg: any) => ({
+          id: msg.id,
+          conversationId: msg.conversation_id,
+          senderId: msg.sender_id,
+          text: msg.content,
+          mediaType: msg.media_type,
+          mediaUrl: msg.media_url,
+          postSnippet: msg.post_snippet,
+          timestamp: new Date(msg.created_at).toLocaleTimeString('pt-BR', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          }),
+          isRead: msg.is_read
+        }));
+
+        setMessages(transformed);
+
+        // Mark messages as read
+        await MessagesService.markConversationAsRead(activeConversationId, currentUser.id);
+      } catch (error) {
+        console.error('Error loading messages:', error);
+      }
+    };
+
+    loadMessages();
+
+    // Setup realtime for this conversation
+    const cleanupFn = MessagesService.subscribeToConversation(
+      activeConversationId,
+      () => {
+        loadMessages();
+      }
+    );
+
+    return () => {
+      if (cleanupFn) cleanupFn();
+    };
+  }, [activeConversationId, currentUser?.id]);
+
+  const handleSelectConversation = (convId: string) => {
+    setActiveConversationId(convId);
+  };
+
+  const handleBackToInboxClick = () => {
+    setActiveConversationId(undefined);
+    setMessages([]);
+    if (onBackToInbox) {
+      onBackToInbox();
+    }
+  };
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputText.trim() || !activeConversationId || !currentUser?.id || isSending) return;
+
+    const messageText = inputText.trim();
+    setInputText('');
+    setIsSending(true);
+
+    try {
+      const result = await MessagesService.sendMessage(
+        activeConversationId,
+        currentUser.id,
+        messageText
+      );
+
+      if (!result.success || !result.message) {
+        throw new Error('Falha ao enviar mensagem');
+      }
+
+      // Optimistic update
+      const chatMessage: ChatMessage = {
+        id: result.message.id,
+        conversationId: activeConversationId,
+        senderId: currentUser.id,
+        text: messageText,
+        timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        isRead: true
+      };
+
+      setMessages((prev) => [...prev, chatMessage]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('Erro ao enviar mensagem. Tente novamente.');
+      setInputText(messageText); // Restore text on error
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   const activeConv = conversations.find((c) => c.id === activeConversationId);
 
@@ -50,10 +205,7 @@ export const DirectInboxView: React.FC<DirectInboxViewProps> = ({
   });
 
   const handleSend = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputText.trim() || !activeConversationId) return;
-    onSendMessage(activeConversationId, inputText.trim());
-    setInputText('');
+    handleSendMessage(e);
   };
 
   // If a conversation is selected, show Chat view (Matching img3)
@@ -64,7 +216,7 @@ export const DirectInboxView: React.FC<DirectInboxViewProps> = ({
         <div className="p-3.5 bg-[#05070B] border-b border-[#171C25] flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button 
-              onClick={onBackToInbox}
+              onClick={handleBackToInboxClick}
               className="flex items-center gap-1 text-[#CBD5E1] hover:text-white"
             >
               <ChevronLeft className="w-5 h-5" />
@@ -156,7 +308,7 @@ export const DirectInboxView: React.FC<DirectInboxViewProps> = ({
           />
           <button 
             type="submit" 
-            disabled={!inputText.trim()}
+            disabled={!inputText.trim() || isSending}
             className="w-10 h-10 rounded-full bg-[#F20D18] disabled:opacity-40 text-white flex items-center justify-center hover:opacity-95 transition-all shrink-0"
           >
             <Send className="w-4 h-4" />
@@ -239,7 +391,11 @@ export const DirectInboxView: React.FC<DirectInboxViewProps> = ({
 
       {/* Conversations List (Matching img4) */}
       <div className="space-y-1">
-        {filteredConversations.length === 0 ? (
+        {isLoading ? (
+          <div className="text-center p-8 bg-[#0D121C] border border-[#171C25] rounded-3xl text-[#94A3B8]">
+            <p className="text-xs">Carregando conversas...</p>
+          </div>
+        ) : filteredConversations.length === 0 ? (
           <div className="text-center p-8 bg-[#0D121C] border border-[#171C25] rounded-3xl text-[#94A3B8]">
             <p className="text-xs font-bold text-white mb-1">Nenhuma conversa nesta aba</p>
             <p className="text-[11px]">Inicie uma nova conversa pelo botão de mensagem no perfil de qualquer atleta.</p>
@@ -248,7 +404,7 @@ export const DirectInboxView: React.FC<DirectInboxViewProps> = ({
           filteredConversations.map((conv) => (
             <div
               key={conv.id}
-              onClick={() => onSelectConversation(conv.id)}
+              onClick={() => handleSelectConversation(conv.id)}
               className="flex items-center justify-between p-3 rounded-2xl bg-[#071321]/40 border border-[#171C25]/60 hover:bg-[#071321] hover:border-[#F20D18]/40 transition-all cursor-pointer"
             >
               <div className="flex items-center gap-3 min-w-0">

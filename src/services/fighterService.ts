@@ -78,7 +78,7 @@ export class FighterService {
         .eq('fighter_id', fighter.id)
         .order('fight_order', { ascending: true });
 
-      return mapFighter(fighter, fights);
+      return mapFighter(fighter, fights || []);
     } catch {
       return null;
     }

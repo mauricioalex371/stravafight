@@ -1,24 +1,98 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, Heart, MessageCircle, UserPlus, Flame, Trophy, CheckCheck, Swords, Check } from 'lucide-react';
 import { NotificationItem } from '../types';
+import { NotificationsService } from '../services/supabase';
 
 interface NotificationsModalProps {
-  notifications: NotificationItem[];
+  currentUserId: string;
   onClose: () => void;
-  onMarkAllAsRead: () => void;
   onSelectNotification: (notif: NotificationItem) => void;
   onAcceptChallenge?: (challengeId: string) => void;
   onDeclineChallenge?: (challengeId: string) => void;
 }
 
 export const NotificationsModal: React.FC<NotificationsModalProps> = ({
-  notifications,
+  currentUserId,
   onClose,
-  onMarkAllAsRead,
   onSelectNotification,
   onAcceptChallenge,
   onDeclineChallenge
 }) => {
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!currentUserId) return;
+
+    const loadNotifications = async () => {
+      try {
+        setIsLoading(true);
+        const result = await NotificationsService.getUserNotifications(currentUserId, 50);
+        const data = result.notifications;
+        
+        // Transform to NotificationItem format
+        const transformed: NotificationItem[] = data.map((n: any) => ({
+          id: n.id,
+          type: n.type,
+          actorName: n.actor_name,
+          actorAvatar: n.actor_avatar || 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400',
+          text: n.message,
+          timestamp: new Date(n.created_at).toLocaleTimeString('pt-BR', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          }),
+          isRead: n.is_read,
+          postId: n.post_id,
+          challengeId: n.challenge_id,
+          targetUrl: n.target_url,
+          targetId: n.target_id
+        }));
+
+        setNotifications(transformed);
+      } catch (error) {
+        console.error('Error loading notifications:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadNotifications();
+
+    // Setup realtime updates
+    const cleanupFn = NotificationsService.subscribeToNotifications(
+      currentUserId,
+      () => {
+        loadNotifications();
+      }
+    );
+
+    return () => {
+      if (cleanupFn) cleanupFn();
+    };
+  }, [currentUserId]);
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await NotificationsService.markAllAsRead(currentUserId);
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    } catch (error) {
+      console.error('Error marking all as read:', error);
+    }
+  };
+
+  const handleNotificationClick = async (notif: NotificationItem) => {
+    try {
+      if (!notif.isRead) {
+        await NotificationsService.markAsRead(notif.id, currentUserId);
+        setNotifications((prev) =>
+          prev.map((n) => (n.id === notif.id ? { ...n, isRead: true } : n))
+        );
+      }
+      onSelectNotification(notif);
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  };
   const getIcon = (type: NotificationItem['type']) => {
     switch (type) {
       case 'LIKE':
@@ -55,7 +129,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
 
           <div className="flex items-center gap-2">
             <button
-              onClick={onMarkAllAsRead}
+              onClick={handleMarkAllAsRead}
               className="text-[11px] text-[#94A3B8] hover:text-white flex items-center gap-1"
               title="Marcar todas como lidas"
             >
@@ -70,7 +144,11 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
 
         {/* Notifications List */}
         <div className="flex-1 overflow-y-auto py-3 space-y-2.5 no-scrollbar">
-          {notifications.length === 0 ? (
+          {isLoading ? (
+            <div className="h-40 flex items-center justify-center text-center text-[#94A3B8] text-xs">
+              <p>Carregando notificações...</p>
+            </div>
+          ) : notifications.length === 0 ? (
             <div className="h-40 flex items-center justify-center text-center text-[#94A3B8] text-xs">
               <p>Nenhuma notificação no momento.</p>
             </div>
@@ -87,7 +165,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
                   }`}
                 >
                   <div 
-                    onClick={() => onSelectNotification(notif)}
+                    onClick={() => handleNotificationClick(notif)}
                     className="flex items-start gap-3 cursor-pointer"
                   >
                     <div className="relative shrink-0">

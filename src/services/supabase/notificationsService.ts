@@ -105,13 +105,11 @@ export class NotificationsService {
         id: row.id,
         type: row.type as any,
         text: row.text,
+        timestamp: new Date(row.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
         targetId: row.target_id,
-        actorUsername: row.actor?.username || 'usuario',
         actorName: row.actor?.full_name || 'Usuário',
         actorAvatar: row.actor?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200',
-        isActorVerified: row.actor?.is_verified || false,
-        isRead: row.is_read,
-        createdAt: row.created_at
+        isRead: row.is_read
       }));
 
       return {
@@ -309,13 +307,11 @@ export class NotificationsService {
               id: newRow.id,
               type: newRow.type,
               text: newRow.text,
+              timestamp: new Date(newRow.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
               targetId: newRow.target_id,
-              actorUsername: actorData?.username || 'usuario',
               actorName: actorData?.full_name || 'Usuário',
               actorAvatar: actorData?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200',
-              isActorVerified: actorData?.is_verified || false,
-              isRead: newRow.is_read,
-              createdAt: newRow.created_at
+              isRead: newRow.is_read
             };
 
             onNewNotification(notification);

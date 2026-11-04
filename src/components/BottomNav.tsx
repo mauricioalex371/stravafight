@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Home, 
   Search, 
   PlusSquare, 
   Clapperboard, 
   User, 
-  Flame 
+  Flame,
+  Bell
 } from 'lucide-react';
 import { UserProfile } from '../types';
+import { NotificationsService } from '../services/supabase';
 
 interface BottomNavProps {
   currentView: string;
@@ -22,6 +24,35 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   currentUser,
   onOpenCreateMenu
 }) => {
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Fetch unread notifications count
+  useEffect(() => {
+    if (!currentUser?.id) return;
+
+    const fetchUnreadCount = async () => {
+      try {
+        const count = await NotificationsService.getUnreadCount(currentUser.id);
+        setUnreadCount(count);
+      } catch (error) {
+        console.error('Error fetching unread count:', error);
+      }
+    };
+
+    fetchUnreadCount();
+
+    // Setup realtime subscription for new notifications
+    const cleanupFn = NotificationsService.subscribeToNotifications(
+      currentUser.id,
+      () => {
+        fetchUnreadCount(); // Refresh count when new notification arrives
+      }
+    );
+
+    return () => {
+      if (cleanupFn) cleanupFn();
+    };
+  }, [currentUser?.id]);
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#05070B]/95 backdrop-blur-lg border-t border-[#171C25] pb-[env(safe-area-inset-bottom)] shadow-2xl">
       <div className="flex items-center justify-around max-w-md mx-auto px-2 py-1">
@@ -64,17 +95,24 @@ export const BottomNav: React.FC<BottomNavProps> = ({
           </div>
         </button>
 
-        {/* 4. SF Reels */}
+        {/* 4. Notificações */}
         <button
-          onClick={() => onChangeView('reels')}
-          className={`flex flex-col items-center justify-center min-w-[56px] min-h-[50px] py-1 transition-all active:scale-90 ${
-            currentView === 'reels' ? 'text-[#F20D18]' : 'text-[#94A3B8] hover:text-white'
+          onClick={() => onChangeView('notifications')}
+          className={`flex flex-col items-center justify-center min-w-[56px] min-h-[50px] py-1 transition-all active:scale-90 relative ${
+            currentView === 'notifications' ? 'text-[#F20D18]' : 'text-[#94A3B8] hover:text-white'
           }`}
-          aria-label="SF Reels"
+          aria-label="Notificações"
         >
-          <Clapperboard className={`w-5 h-5 transition-transform ${currentView === 'reels' ? 'scale-110 stroke-[2.5]' : ''}`} />
-          <span className={`text-[10px] mt-1 font-medium ${currentView === 'reels' ? 'font-bold text-white' : ''}`}>
-            Reels
+          <div className="relative">
+            <Bell className={`w-5 h-5 transition-transform ${currentView === 'notifications' ? 'scale-110 stroke-[2.5]' : ''}`} />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#F20D18] text-white text-[9px] font-black rounded-full flex items-center justify-center ring-2 ring-[#05070B]">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </div>
+          <span className={`text-[10px] mt-1 font-medium ${currentView === 'notifications' ? 'font-bold text-white' : ''}`}>
+            Notif.
           </span>
         </button>
 

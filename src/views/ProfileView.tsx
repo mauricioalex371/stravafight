@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Grid, 
   Clapperboard, 
@@ -14,12 +14,16 @@ import {
   X,
   Plus,
   Swords,
-  CheckCircle2
+  CheckCircle2,
+  UserPlus,
+  UserCheck
 } from 'lucide-react';
 import { UserProfile, Post, Reel, AchievementBadge, CombatChallenge } from '../types';
+import { FollowersService, NotificationsService } from '../services/supabase';
 
 interface ProfileViewProps {
   user: UserProfile;
+  currentUserId?: string; // Added to know if viewing own profile
   posts: Post[];
   reels: Reel[];
   achievements: AchievementBadge[];
@@ -34,6 +38,7 @@ interface ProfileViewProps {
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
   user,
+  currentUserId,
   posts,
   reels,
   achievements,
@@ -47,6 +52,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'posts' | 'reels' | 'challenges' | 'saved' | 'achievements'>('posts');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowLoading, setIsFollowLoading] = useState(false);
 
   // Edit form state
   const [fullName, setFullName] = useState(user.fullName);
@@ -54,6 +61,51 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const [location, setLocation] = useState(user.location || '');
   const [primaryBelt, setPrimaryBelt] = useState(user.modalities[0]?.belt || 'Faixa Marrom');
   const [primaryModality, setPrimaryModality] = useState(user.modalities[0]?.modality || 'Jiu-Jitsu');
+
+  const isOwnProfile = currentUserId === user.id;
+
+  // Check if following this user
+  useEffect(() => {
+    if (!currentUserId || isOwnProfile) return;
+    
+    const checkFollowStatus = async () => {
+      try {
+        const following = await FollowersService.isFollowing(currentUserId, user.id);
+        setIsFollowing(following);
+      } catch (error) {
+        console.error('Error checking follow status:', error);
+      }
+    };
+
+    checkFollowStatus();
+  }, [currentUserId, user.id, isOwnProfile]);
+
+  const handleFollowToggle = async () => {
+    if (!currentUserId || isOwnProfile || isFollowLoading) return;
+
+    setIsFollowLoading(true);
+    const previousState = isFollowing;
+
+    try {
+      // Optimistic update
+      setIsFollowing(!isFollowing);
+
+      if (isFollowing) {
+        await FollowersService.unfollowUser(currentUserId, user.id);
+      } else {
+        await FollowersService.followUser(currentUserId, user.id);
+        // Notify the user they got a new follower
+        await NotificationsService.notifyFollow(user.id, currentUserId);
+      }
+    } catch (error) {
+      console.error('Error toggling follow:', error);
+      // Rollback on error
+      setIsFollowing(previousState);
+      alert('Erro ao atualizar seguidor. Tente novamente.');
+    } finally {
+      setIsFollowLoading(false);
+    }
+  };
 
   const userPosts = posts.filter((p) => p.authorId === user.id || p.authorUsername === user.username);
   const savedPosts = posts.filter((p) => p.hasSaved);
@@ -170,42 +222,92 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
         {/* Action Buttons (Matching img5: Editar perfil, Compartilhar, Gerenciar Academia, Desafio) */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4 pt-3 border-t border-[#171C25]">
-          <button
-            onClick={() => setIsEditModalOpen(true)}
-            className="min-h-[38px] px-3 rounded-xl bg-[#0D121C] border border-[#171C25] text-white font-bold text-xs flex items-center justify-center gap-1.5 hover:border-[#F20D18] active:scale-95 transition-all"
-          >
-            <Edit3 className="w-3.5 h-3.5 text-[#F20D18]" />
-            <span>Editar perfil</span>
-          </button>
+          {isOwnProfile ? (
+            <>
+              <button
+                onClick={() => setIsEditModalOpen(true)}
+                className="min-h-[38px] px-3 rounded-xl bg-[#0D121C] border border-[#171C25] text-white font-bold text-xs flex items-center justify-center gap-1.5 hover:border-[#F20D18] active:scale-95 transition-all"
+              >
+                <Edit3 className="w-3.5 h-3.5 text-[#F20D18]" />
+                <span>Editar perfil</span>
+              </button>
 
-          {onOpenCreateChallenge && (
-            <button
-              onClick={onOpenCreateChallenge}
-              className="min-h-[38px] px-3 rounded-xl bg-[#171C25] border border-[#F20D18]/40 text-white font-bold text-xs flex items-center justify-center gap-1.5 hover:border-[#F20D18] active:scale-95 transition-all"
-            >
-              <Swords className="w-3.5 h-3.5 text-[#F20D18]" />
-              <span>Desafio Sparring</span>
-            </button>
+              {onOpenCreateChallenge && (
+                <button
+                  onClick={onOpenCreateChallenge}
+                  className="min-h-[38px] px-3 rounded-xl bg-[#171C25] border border-[#F20D18]/40 text-white font-bold text-xs flex items-center justify-center gap-1.5 hover:border-[#F20D18] active:scale-95 transition-all"
+                >
+                  <Swords className="w-3.5 h-3.5 text-[#F20D18]" />
+                  <span>Desafio Sparring</span>
+                </button>
+              )}
+
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(`https://stravafight.com/${user.username}`);
+                  alert('Link do seu perfil copiado!');
+                }}
+                className="min-h-[38px] px-3 rounded-xl bg-[#0D121C] border border-[#171C25] text-white font-bold text-xs flex items-center justify-center gap-1.5 hover:border-[#F20D18] active:scale-95 transition-all"
+              >
+                <Share2 className="w-3.5 h-3.5 text-[#94A3B8]" />
+                <span>Compartilhar</span>
+              </button>
+
+              <button
+                onClick={onOpenAcademy}
+                className="col-span-2 sm:col-span-1 min-h-[38px] px-3 rounded-xl bg-[#F20D18] text-white font-black text-xs flex items-center justify-center gap-1.5 hover:bg-[#d90812] active:scale-95 transition-all shadow-md shadow-[#F20D18]/25"
+              >
+                <ShieldCheck className="w-4 h-4 text-white" />
+                <span>SF Academy</span>
+              </button>
+            </>
+          ) : (
+            <>
+              {/* Follow/Unfollow Button for other profiles */}
+              <button
+                onClick={handleFollowToggle}
+                disabled={isFollowLoading}
+                className={`col-span-2 min-h-[38px] px-4 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all ${
+                  isFollowing
+                    ? 'bg-[#0D121C] border border-[#171C25] text-white hover:border-[#F20D18]'
+                    : 'bg-gradient-to-r from-[#F20D18] to-[#FF4A0F] text-white shadow-md shadow-[#F20D18]/25 hover:opacity-95'
+                } ${isFollowLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                {isFollowing ? (
+                  <>
+                    <UserCheck className="w-4 h-4" />
+                    <span>Seguindo</span>
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="w-4 h-4" />
+                    <span>Seguir</span>
+                  </>
+                )}
+              </button>
+
+              {onOpenCreateChallenge && (
+                <button
+                  onClick={onOpenCreateChallenge}
+                  className="min-h-[38px] px-3 rounded-xl bg-[#171C25] border border-[#F20D18]/40 text-white font-bold text-xs flex items-center justify-center gap-1.5 hover:border-[#F20D18] active:scale-95 transition-all"
+                >
+                  <Swords className="w-3.5 h-3.5 text-[#F20D18]" />
+                  <span>Desafiar</span>
+                </button>
+              )}
+
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(`https://stravafight.com/${user.username}`);
+                  alert('Link do perfil copiado!');
+                }}
+                className="min-h-[38px] px-3 rounded-xl bg-[#0D121C] border border-[#171C25] text-white font-bold text-xs flex items-center justify-center gap-1.5 hover:border-[#F20D18] active:scale-95 transition-all"
+              >
+                <Share2 className="w-3.5 h-3.5 text-[#94A3B8]" />
+                <span>Compartilhar</span>
+              </button>
+            </>
           )}
-
-          <button
-            onClick={() => {
-              navigator.clipboard.writeText(`https://stravafight.com/${user.username}`);
-              alert('Link do seu perfil copiado!');
-            }}
-            className="min-h-[38px] px-3 rounded-xl bg-[#0D121C] border border-[#171C25] text-white font-bold text-xs flex items-center justify-center gap-1.5 hover:border-[#F20D18] active:scale-95 transition-all"
-          >
-            <Share2 className="w-3.5 h-3.5 text-[#94A3B8]" />
-            <span>Compartilhar</span>
-          </button>
-
-          <button
-            onClick={onOpenAcademy}
-            className="col-span-2 sm:col-span-1 min-h-[38px] px-3 rounded-xl bg-[#F20D18] text-white font-black text-xs flex items-center justify-center gap-1.5 hover:bg-[#d90812] active:scale-95 transition-all shadow-md shadow-[#F20D18]/25"
-          >
-            <ShieldCheck className="w-4 h-4 text-white" />
-            <span>SF Academy</span>
-          </button>
         </div>
 
         {/* Story Highlights (Matching img5) */}

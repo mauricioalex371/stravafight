@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StorageService } from './services/storageService';
+import { LikesService, CommentsService, FollowersService, NotificationsService, MessagesService } from './services/supabase';
 import { 
   UserProfile, 
   Post, 
@@ -100,6 +101,25 @@ export default function App() {
   const [challengeTargetUsername, setChallengeTargetUsername] = useState<string | undefined>(undefined);
   const [activeCommentsPost, setActiveCommentsPost] = useState<Post | null>(null);
   const [activeSharePost, setActiveSharePost] = useState<Post | null>(null);
+
+  // Wave 1: Sincronizar estado de likes dos posts
+  useEffect(() => {
+    const syncLikes = async () => {
+      if (posts.length > 0 && currentUser.id) {
+        const postIds = posts.map(p => p.id);
+        const likesMap = await LikesService.checkMultipleLikes(postIds, currentUser.id);
+        
+        const updated = posts.map(post => ({
+          ...post,
+          hasLiked: likesMap.get(post.id) || false
+        }));
+        
+        setPosts(updated);
+      }
+    };
+
+    syncLikes();
+  }, []); // Executa apenas uma vez no mount
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isMobileCreateMenuOpen, setIsMobileCreateMenuOpen] = useState(false);
   const [gamificationBanner, setGamificationBanner] = useState<string | null>(null);
@@ -135,7 +155,13 @@ export default function App() {
   };
 
   // 1. Social Interactions: Likes & Saves
-  const handleToggleLikePost = (postId: string) => {
+  const handleToggleLikePost = async (postId: string) => {
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+
+    const wasLiked = post.hasLiked;
+    
+    // Atualização otimista na UI
     const updated = posts.map((p) => {
       if (p.id === postId) {
         const nextLiked = !p.hasLiked;
@@ -148,7 +174,23 @@ export default function App() {
       return p;
     });
     setPosts(updated);
-    StorageService.savePosts(updated);
+
+    // Operação real no Supabase
+    try {
+      if (wasLiked) {
+        await LikesService.unlikePost(postId, currentUser.id);
+      } else {
+        await LikesService.likePost(postId, currentUser.id);
+        // Notificar autor (se não for o próprio usuário)
+        if (post.authorId !== currentUser.id) {
+          await NotificationsService.notifyLike(post.authorId, currentUser.id, postId);
+        }
+      }
+    } catch (error) {
+      console.error('[App] Erro ao curtir/descurtir:', error);
+      // Reverter UI em caso de erro
+      setPosts(posts);
+    }
   };
 
   const handleToggleSavePost = (postId: string) => {

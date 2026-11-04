@@ -38,6 +38,9 @@ export interface UserProfile {
   xpPoints: number;
   beltRankSocial: string; // Ex: "Faixa Preta SF"
   badges: string[];
+  // Sherdog Integration
+  sherdogUrl?: string;
+  sherdogId?: number;
 }
 
 export interface PostComment {

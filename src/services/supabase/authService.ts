@@ -9,6 +9,7 @@ export interface SignUpPayload {
   username: string;
   role?: string;
   modality?: string;
+  sherdogUrl?: string;
 }
 
 export interface AuthResponse<T = any> {
@@ -61,6 +62,7 @@ export class AuthService {
           username: payload.username.toLowerCase().replace(/[^a-z0-9_.]/g, ''),
           full_name: payload.fullName,
           role: payload.role || 'Atleta',
+          sherdog_url: payload.sherdogUrl || null,
           created_at: new Date().toISOString()
         });
       }

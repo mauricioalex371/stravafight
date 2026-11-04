@@ -225,7 +225,7 @@ export function getAllDbStatuses(): string[] {
 // Testes Inline (executar em desenvolvimento)
 // ============================================================================
 
-if (import.meta.env.DEV) {
+if (typeof import.meta !== 'undefined' && import.meta.env?.DEV) {
   console.log('[EnumMapper] Validando mapeamentos...');
   
   // Testar todos objectives ida e volta

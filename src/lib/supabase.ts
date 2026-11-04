@@ -8,8 +8,14 @@ export interface SupabaseEnvConfig {
 }
 
 // Retrieve client-side environment variables safely
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+// Support for Node.js test environment (import.meta.env may be undefined)
+const supabaseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL) 
+  || process.env.VITE_SUPABASE_URL 
+  || 'http://localhost:54321'; // Default for tests
+
+const supabaseAnonKey = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_ANON_KEY)
+  || process.env.VITE_SUPABASE_ANON_KEY
+  || 'test-anon-key'; // Default for tests
 
 // Check if valid credentials are provided (ignoring placeholder values)
 const isConfigured = Boolean(
@@ -43,7 +49,7 @@ export const supabase: SupabaseClient = createClient(
   }
 );
 
-if (!isConfigured && import.meta.env.DEV) {
+if (!isConfigured && typeof import.meta !== 'undefined' && import.meta.env?.DEV) {
   console.info(
     '[STRAVA FIGHT] Supabase operando em modo híbrido/local fallback. Configure VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY no arquivo .env ou no painel da Vercel para persistência direta na nuvem.'
   );

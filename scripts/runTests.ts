@@ -22,6 +22,8 @@ import { runBusinessCRUDTests } from '../src/__tests__/businessCRUD.test';
 import { runSecurityTests } from '../src/__tests__/security.test';
 import { runModerationTests } from '../src/__tests__/moderation.test';
 import { runSearchTests } from '../src/__tests__/search.test';
+import { runAuthTests } from '../src/__tests__/auth.test';
+import { runNotificationsTests } from '../src/__tests__/notifications.test';
 
 console.log('🥋 ============================================================');
 console.log('🥋 STRAVA FIGHT — SUÍTE DE TESTES SF BUSINESS');
@@ -34,7 +36,9 @@ const allSuites = [
   { name: '4. SF Business — CRUD e Persistência', runner: runBusinessCRUDTests },
   { name: '5. Segurança — XSS, SQL Injection, Rate Limiting', runner: runSecurityTests },
   { name: '6. Moderação — Denúncias, Bloqueios, Ações Admin', runner: runModerationTests },
-  { name: '7. Busca — Filtros, Pesquisa de Usuários', runner: runSearchTests }
+  { name: '7. Busca — Filtros, Pesquisa de Usuários', runner: runSearchTests },
+  { name: '8. Autenticação — Sessões, Tokens, Refresh', runner: runAuthTests },
+  { name: '9. Notificações — Leitura, Filtros, Agrupamento', runner: runNotificationsTests }
 ];
 
 let totalTests = 0;

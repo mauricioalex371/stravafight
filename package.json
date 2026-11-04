@@ -11,6 +11,8 @@
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:unit": "vitest run --config vitest.config.ts",
+    "test:integration": "vitest run src/__tests__/integration/**/*.test.ts",
     "test:watch": "vitest",
     "test:ui": "vitest --ui"
   },

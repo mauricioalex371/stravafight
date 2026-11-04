@@ -13,12 +13,12 @@
  */
 
 import { describe, it, expect, beforeAll } from 'vitest';
-import { LikesService } from '../services/supabase/likesService';
-import { CommentsService } from '../services/supabase/commentsService';
-import { FollowersService } from '../services/supabase/followersService';
-import { NotificationsService } from '../services/supabase/notificationsService';
-import { MessagesService } from '../services/supabase/messagesService';
-import { isSupabaseReady } from '../lib/supabase';
+import { LikesService } from '../../services/supabase/likesService';
+import { CommentsService } from '../../services/supabase/commentsService';
+import { FollowersService } from '../../services/supabase/followersService';
+import { NotificationsService } from '../../services/supabase/notificationsService';
+import { MessagesService } from '../../services/supabase/messagesService';
+import { isSupabaseReady } from '../../lib/supabase';
 
 describe('Wave 1 Services - Integration Tests', () => {
   const testUserId1 = 'test-user-1';

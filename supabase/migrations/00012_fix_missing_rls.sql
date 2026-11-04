@@ -19,8 +19,6 @@ BEGIN;
 
 DROP TABLE IF EXISTS public.admin_audit_logs_backup_00007;
 
-RAISE NOTICE '✅ Backup temporário admin_audit_logs_backup_00007 removido';
-
 -- ============================================================================
 -- 2. HABILITAR RLS EM marketplace_payment_webhooks
 -- ============================================================================
@@ -49,8 +47,6 @@ CREATE POLICY "Admins can update webhook processing status"
   WITH CHECK (is_admin());
 
 -- Nenhuma policy de DELETE: webhooks são audit trail permanente
-
-RAISE NOTICE '✅ RLS habilitado em marketplace_payment_webhooks com 3 policies';
 
 -- ============================================================================
 -- VALIDAÇÃO FINAL

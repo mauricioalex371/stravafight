@@ -1,4 +1,4 @@
-import { ModerationService } from '../services/moderationService';
+import { ModerationService } from '../../services/moderationService';
 
 export function runModerationTests(): { name: string; passed: boolean; error?: string }[] {
   const results: { name: string; passed: boolean; error?: string }[] = [];

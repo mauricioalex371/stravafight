@@ -1,5 +1,5 @@
-import { escapeHtml, stripHtml, isSafeUrl, sanitizeInput, validateUploadFile } from '../utils/security';
-import { RateLimiter } from '../utils/rateLimiter';
+import { escapeHtml, stripHtml, isSafeUrl, sanitizeInput, validateUploadFile } from '../../utils/security';
+import { RateLimiter } from '../../utils/rateLimiter';
 
 export function runSecurityTests(): { name: string; passed: boolean; error?: string }[] {
   const results: { name: string; passed: boolean; error?: string }[] = [];

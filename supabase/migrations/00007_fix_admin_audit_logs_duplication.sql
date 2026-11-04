@@ -103,6 +103,18 @@ COMMENT ON TABLE admin_audit_logs IS
 'Tabela de auditoria administrativa (schema consolidado - Migration 00007). Registra todas ações admin com IP tracking.';
 
 -- ============================================================================
+-- PASSO 4: Limpeza de backup (se migration foi bem sucedida)
+-- ============================================================================
+
+DO $$
+BEGIN
+  -- Remover backup temporário após 24h (manual)
+  -- DROP TABLE IF EXISTS admin_audit_logs_backup_00007;
+  -- Por segurança, mantemos o backup disponível para rollback manual
+  NULL;
+END $$;
+
+-- ============================================================================
 -- ROLLBACK PLAN (documentado)
 -- ============================================================================
 -- Para reverter esta migration:

@@ -1,4 +1,4 @@
-import { SearchService } from '../services/searchService';
+import { SearchService } from '../../services/searchService';
 
 export function runSearchTests(): { name: string; passed: boolean; error?: string }[] {
   const results: { name: string; passed: boolean; error?: string }[] = [];

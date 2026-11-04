@@ -15,15 +15,15 @@ if (!import.meta.env) {
 }
 
 // Importar apenas os testes que não dependem de import.meta.env
-import { runBusinessAuthTests } from '../src/__tests__/businessAuth.test';
-import { runBusinessSyncTests } from '../src/__tests__/businessSync.test';
-import { runBusinessMigrationTests } from '../src/__tests__/businessMigration.test';
-import { runBusinessCRUDTests } from '../src/__tests__/businessCRUD.test';
-import { runSecurityTests } from '../src/__tests__/security.test';
-import { runModerationTests } from '../src/__tests__/moderation.test';
-import { runSearchTests } from '../src/__tests__/search.test';
-import { runAuthTests } from '../src/__tests__/auth.test';
-import { runNotificationsTests } from '../src/__tests__/notifications.test';
+import { runBusinessAuthTests } from '../src/__tests__/integration/businessAuth.test';
+import { runBusinessSyncTests } from '../src/__tests__/integration/businessSync.test';
+import { runBusinessMigrationTests } from '../src/__tests__/integration/businessMigration.test';
+import { runBusinessCRUDTests } from '../src/__tests__/integration/businessCRUD.test';
+import { runSecurityTests } from '../src/__tests__/integration/security.test';
+import { runModerationTests } from '../src/__tests__/integration/moderation.test';
+import { runSearchTests } from '../src/__tests__/integration/search.test';
+import { runAuthTests } from '../src/__tests__/integration/auth.test';
+import { runNotificationsTests } from '../src/__tests__/integration/notifications.test';
 
 console.log('🥋 ============================================================');
 console.log('🥋 STRAVA FIGHT — SUÍTE DE TESTES SF BUSINESS');

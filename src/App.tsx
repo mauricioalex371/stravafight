@@ -350,7 +350,11 @@ export default function App() {
   };
 
   // 3. Comments & Direct Messages
-  const handleAddComment = (postId: string, comment: any) => {
+  const handleAddComment = async (postId: string, comment: any) => {
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+
+    // Atualização otimista
     const updated = posts.map((p) => {
       if (p.id === postId) {
         return {
@@ -362,9 +366,28 @@ export default function App() {
       return p;
     });
     setPosts(updated);
-    StorageService.savePosts(updated);
     if (activeCommentsPost?.id === postId) {
       setActiveCommentsPost(updated.find((p) => p.id === postId) || null);
+    }
+
+    // Operação real no Supabase
+    try {
+      const result = await CommentsService.createComment(postId, currentUser.id, comment.text);
+      if (result.success && result.comment) {
+        // Notificar autor do post (se não for o próprio usuário)
+        if (post.authorId !== currentUser.id) {
+          await NotificationsService.notifyComment(post.authorId, currentUser.id, postId);
+        }
+      } else {
+        // Reverter em caso de erro
+        setPosts(posts);
+        if (activeCommentsPost?.id === postId) {
+          setActiveCommentsPost(post);
+        }
+      }
+    } catch (error) {
+      console.error('[App] Erro ao criar comentário:', error);
+      setPosts(posts);
     }
   };
 

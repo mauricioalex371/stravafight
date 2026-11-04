@@ -50,6 +50,7 @@ import {
 import { BusinessService, COMMERCIAL_PLANS } from '../services/businessService';
 import { BUSINESS_TRANSLATIONS } from '../utils/businessI18n';
 import { generateUUID, formatCurrency } from '../utils/formatters';
+import { BusinessSyncIndicator } from '../components/BusinessSyncIndicator';
 
 interface BusinessViewProps {
   currentUser: UserProfile;
@@ -237,7 +238,7 @@ export const BusinessView: React.FC<BusinessViewProps> = ({
       updatedAt: new Date().toISOString()
     };
 
-    BusinessService.saveCampaign(newCamp);
+    BusinessService.createCampaignWithSync(newCamp);
     BusinessService.addAuditLog({
       adminId: currentUser.id,
       adminName: currentUser.fullName,
@@ -254,7 +255,7 @@ export const BusinessView: React.FC<BusinessViewProps> = ({
   const handleTogglePauseCampaign = (camp: AdCampaign) => {
     const nextStatus: AdStatus = camp.status === 'ATIVA' ? 'PAUSADA' : 'ATIVA';
     const updated = { ...camp, status: nextStatus };
-    BusinessService.saveCampaign(updated);
+    BusinessService.updateCampaignWithSync(updated);
     BusinessService.addAuditLog({
       adminId: currentUser.id,
       adminName: currentUser.fullName,
@@ -280,7 +281,7 @@ export const BusinessView: React.FC<BusinessViewProps> = ({
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
-    BusinessService.saveCampaign(duplicated);
+    BusinessService.updateCampaignWithSync(duplicated);
     loadBusinessData();
   };
 
@@ -313,7 +314,7 @@ export const BusinessView: React.FC<BusinessViewProps> = ({
       modalitiesServed: ['Jiu-Jitsu', 'Muay Thai', 'MMA', 'Boxe']
     };
 
-    BusinessService.saveCommercialProfile(profile);
+    BusinessService.createCommercialProfileWithSync(profile);
     BusinessService.addAuditLog({
       adminId: currentUser.id,
       adminName: currentUser.fullName,
@@ -382,7 +383,7 @@ export const BusinessView: React.FC<BusinessViewProps> = ({
       createdAt: new Date().toISOString()
     };
 
-    BusinessService.saveProduct(newProd);
+    BusinessService.createProductWithSync(newProd);
     setIsProductModalOpen(false);
     loadBusinessData();
   };
@@ -414,7 +415,7 @@ export const BusinessView: React.FC<BusinessViewProps> = ({
       createdAt: new Date().toISOString()
     };
 
-    BusinessService.saveOpportunity(newOpp);
+    BusinessService.createOpportunityWithSync(newOpp);
     setIsOppModalOpen(false);
     loadBusinessData();
   };
@@ -446,7 +447,7 @@ export const BusinessView: React.FC<BusinessViewProps> = ({
       createdAt: new Date().toISOString()
     };
 
-    BusinessService.saveCommercialEvent(newEv);
+    BusinessService.createCommercialEventWithSync(newEv);
     setIsEventModalOpen(false);
     loadBusinessData();
   };
@@ -454,7 +455,7 @@ export const BusinessView: React.FC<BusinessViewProps> = ({
   // Admin Actions
   const handleAdminApproveCampaign = (camp: AdCampaign) => {
     const updated = { ...camp, status: 'ATIVA' as AdStatus, rejectionReason: undefined };
-    BusinessService.saveCampaign(updated);
+    BusinessService.updateCampaignWithSync(updated);
     BusinessService.addAuditLog({
       adminId: currentUser.id,
       adminName: currentUser.fullName,
@@ -476,7 +477,7 @@ export const BusinessView: React.FC<BusinessViewProps> = ({
       status: 'REPROVADA' as AdStatus, 
       rejectionReason: rejectionReasonInput.trim() 
     };
-    BusinessService.saveCampaign(updated);
+    BusinessService.updateCampaignWithSync(updated);
     BusinessService.addAuditLog({
       adminId: currentUser.id,
       adminName: currentUser.fullName,
@@ -496,7 +497,7 @@ export const BusinessView: React.FC<BusinessViewProps> = ({
       isVerified: true, 
       verificationStatus: 'APPROVED' as const 
     };
-    BusinessService.saveCommercialProfile(updated);
+    BusinessService.createCommercialProfileWithSync(updated);
     BusinessService.addAuditLog({
       adminId: currentUser.id,
       adminName: currentUser.fullName,
@@ -533,6 +534,9 @@ export const BusinessView: React.FC<BusinessViewProps> = ({
 
           {/* Quick Actions & Language Switcher */}
           <div className="flex flex-wrap items-center gap-2">
+            {/* Sync Indicator */}
+            <BusinessSyncIndicator compact />
+
             {/* Language Selector */}
             <div className="flex items-center bg-[#05070B] border border-[#171C25] rounded-xl p-1 text-xs">
               <Globe className="w-3.5 h-3.5 text-[#94A3B8] ml-2 mr-1" />

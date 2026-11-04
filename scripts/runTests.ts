@@ -3,18 +3,21 @@
  * Runs core unit & integration tests for security, storage, moderation, and search.
  */
 
-import { runSecurityTests } from '../src/__tests__/security.test';
-import { runModerationTests } from '../src/__tests__/moderation.test';
-import { runSearchTests } from '../src/__tests__/search.test';
+// Importar apenas os testes que não dependem de import.meta.env
+import { runBusinessAuthTests } from '../src/__tests__/businessAuth.test';
+import { runBusinessSyncTests } from '../src/__tests__/businessSync.test';
+import { runBusinessMigrationTests } from '../src/__tests__/businessMigration.test';
+import { runBusinessCRUDTests } from '../src/__tests__/businessCRUD.test';
 
 console.log('🥋 ============================================================');
-console.log('🥋 STRAVA FIGHT — SUÍTE DE TESTES AUTOMATIZADOS (ETAPA 2)');
+console.log('🥋 STRAVA FIGHT — SUÍTE DE TESTES SF BUSINESS');
 console.log('🥋 ============================================================\n');
 
 const allSuites = [
-  { name: '1. Segurança, Anti-XSS e Rate Limiting', runner: runSecurityTests },
-  { name: '2. Moderação, Denúncias e Bloqueio de Usuários', runner: runModerationTests },
-  { name: '3. Busca Unificada e Descoberta Multi-Entidades', runner: runSearchTests }
+  { name: '1. SF Business — Autenticação e Ciclo de Vida', runner: runBusinessAuthTests },
+  { name: '2. SF Business — Sincronização e Fila', runner: runBusinessSyncTests },
+  { name: '3. SF Business — Migração e Backup', runner: runBusinessMigrationTests },
+  { name: '4. SF Business — CRUD e Persistência', runner: runBusinessCRUDTests }
 ];
 
 let totalTests = 0;

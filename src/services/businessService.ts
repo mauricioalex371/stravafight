@@ -12,6 +12,8 @@ import {
   BusinessLanguage
 } from '../types';
 import { generateUUID } from '../utils/formatters';
+import { businessSyncService, type SyncStatus } from './businessSyncService';
+import { businessMigrationService, type MigrationReport } from './businessMigrationService';
 
 const BIZ_STORAGE_KEYS = {
   PROFILES: 'sfb_commercial_profiles',
@@ -830,5 +832,434 @@ export class BusinessService {
       timestamp: new Date().toISOString()
     };
     localStorage.setItem(BIZ_STORAGE_KEYS.AUDIT_LOGS, JSON.stringify([newLog, ...logs].slice(0, 200)));
+  }
+
+  // ============================================================================
+  // SF BUSINESS SYNC & MIGRATION (Fase C - Supabase Integration)
+  // ============================================================================
+
+  /**
+   * Initialize sync service with user authentication
+   * Must be called after user login with valid Supabase session
+   */
+  static initializeSync(userId: string, supabaseAccessToken: string): void {
+    businessSyncService.setUser(userId, supabaseAccessToken);
+    businessSyncService.initialize();
+  }
+
+  /**
+   * Shutdown sync service and flush pending operations
+   * Should be called on user logout or app cleanup
+   */
+  static async shutdownSync(): Promise<void> {
+    await businessSyncService.syncPending();
+    businessSyncService.clearUser();
+  }
+
+  /**
+   * Get current sync status for monitoring UI
+   */
+  static getSyncStatus(): SyncStatus {
+    return businessSyncService.getStatus();
+  }
+
+  /**
+   * Start background sync service (online only)
+   * Automatically syncs pending operations every 30s
+   */
+  static startBackgroundSync(): void {
+    businessSyncService.startBackgroundSync();
+  }
+
+  /**
+   * Stop background sync service
+   */
+  static stopBackgroundSync(): void {
+    businessSyncService.stopBackgroundSync();
+  }
+
+  /**
+   * Manually trigger sync of pending operations
+   * Useful for "Sync Now" button in UI
+   */
+  static async syncNow(): Promise<void> {
+    await businessSyncService.syncPendingOperations();
+  }
+
+  /**
+   * Check if user has legacy localStorage-only business data
+   * Should be called on app startup to prompt migration UI
+   */
+  static hasLegacyBusinessData(userId: string): boolean {
+    return businessMigrationService.detectLegacyData(userId);
+  }
+
+  /**
+   * Migrate all legacy business data from localStorage to Supabase
+   * Returns detailed migration report with success/failure counts
+   */
+  static async migrateBusinessData(userId: string, supabaseAccessToken: string): Promise<MigrationReport> {
+    return await businessMigrationService.migrateAllData(userId, supabaseAccessToken);
+  }
+
+  /**
+   * Rollback migration - restore localStorage data from backup
+   * Use if migration fails or user wants to undo migration
+   */
+  static async rollbackMigration(userId: string): Promise<void> {
+    await businessMigrationService.rollbackMigration(userId);
+  }
+
+  /**
+   * Create a new commercial profile with automatic sync to Supabase
+   * Falls back to localStorage if offline
+   */
+  static async createCommercialProfileWithSync(
+    profile: CommercialProfile
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      // Save to localStorage immediately (offline support)
+      this.saveCommercialProfile(profile);
+
+      // Get current user ID from sync service
+      const userId = businessSyncService.getCurrentUserId();
+      if (!userId) {
+        return { success: false, error: 'Usuário não autenticado' };
+      }
+
+      // Queue sync operation
+      await businessSyncService.enqueue(
+        'CREATE_PROFILE',
+        'commercial_profiles',
+        profile.id,
+        profile,
+        userId
+      );
+
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to create profile with sync:', error);
+      return { success: false, error: String(error) };
+    }
+  }
+
+  /**
+   * Update existing commercial profile with automatic sync
+   */
+  static async updateCommercialProfileWithSync(
+    profile: CommercialProfile
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      // Update localStorage immediately
+      this.saveCommercialProfile(profile);
+
+      // Get current user ID from sync service
+      const userId = businessSyncService.getCurrentUserId();
+      if (!userId) {
+        return { success: false, error: 'Usuário não autenticado' };
+      }
+
+      // Queue sync operation
+      await businessSyncService.enqueue(
+        'UPDATE_PROFILE',
+        'commercial_profiles',
+        profile.id,
+        profile,
+        userId
+      );
+
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to update profile with sync:', error);
+      return { success: false, error: String(error) };
+    }
+  }
+
+  /**
+   * Create ad campaign with automatic sync
+   */
+  static async createCampaignWithSync(
+    campaign: AdCampaign
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      // Save to localStorage immediately
+      this.saveCampaign(campaign);
+
+      // Get current user ID from sync service
+      const userId = businessSyncService.getCurrentUserId();
+      if (!userId) {
+        return { success: false, error: 'Usuário não autenticado' };
+      }
+
+      // Queue sync operation
+      await businessSyncService.enqueue(
+        'CREATE_CAMPAIGN',
+        'ad_campaigns',
+        campaign.id,
+        campaign,
+        userId
+      );
+
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to create campaign with sync:', error);
+      return { success: false, error: String(error) };
+    }
+  }
+
+  /**
+   * Update ad campaign with automatic sync
+   */
+  static async updateCampaignWithSync(
+    campaign: AdCampaign
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      // Update localStorage immediately
+      this.saveCampaign(campaign);
+
+      // Get current user ID from sync service
+      const userId = businessSyncService.getCurrentUserId();
+      if (!userId) {
+        return { success: false, error: 'Usuário não autenticado' };
+      }
+
+      // Queue sync operation
+      await businessSyncService.enqueue(
+        'UPDATE_CAMPAIGN',
+        'ad_campaigns',
+        campaign.id,
+        campaign,
+        userId
+      );
+
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to update campaign with sync:', error);
+      return { success: false, error: String(error) };
+    }
+  }
+
+  /**
+   * Create product with automatic sync
+   */
+  static async createProductWithSync(
+    product: CommercialProduct
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      // Save to localStorage immediately
+      this.saveProduct(product);
+
+      // Get current user ID from sync service
+      const userId = businessSyncService.getCurrentUserId();
+      if (!userId) {
+        return { success: false, error: 'Usuário não autenticado' };
+      }
+
+      // Queue sync operation
+      await businessSyncService.enqueue(
+        'CREATE_PRODUCT',
+        'commercial_products',
+        product.id,
+        product,
+        userId
+      );
+
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to create product with sync:', error);
+      return { success: false, error: String(error) };
+    }
+  }
+
+  /**
+   * Update product with automatic sync
+   */
+  static async updateProductWithSync(
+    product: CommercialProduct
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      // Save to localStorage immediately
+      this.saveProduct(product);
+
+      // Get current user ID from sync service
+      const userId = businessSyncService.getCurrentUserId();
+      if (!userId) {
+        return { success: false, error: 'Usuário não autenticado' };
+      }
+
+      // Queue sync operation
+      await businessSyncService.enqueue(
+        'UPDATE_PRODUCT',
+        'commercial_products',
+        product.id,
+        product,
+        userId
+      );
+
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to update product with sync:', error);
+      return { success: false, error: String(error) };
+    }
+  }
+
+  /**
+   * Delete product with automatic sync
+   */
+  static async deleteProductWithSync(
+    productId: string
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      // Delete from localStorage immediately
+      this.deleteProduct(productId);
+
+      // Get current user ID from sync service
+      const userId = businessSyncService.getCurrentUserId();
+      if (!userId) {
+        return { success: false, error: 'Usuário não autenticado' };
+      }
+
+      // Queue sync operation
+      await businessSyncService.enqueue(
+        'DELETE_PRODUCT',
+        'commercial_products',
+        productId,
+        { id: productId },
+        userId
+      );
+
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to delete product with sync:', error);
+      return { success: false, error: String(error) };
+    }
+  }
+
+  /**
+   * Create sponsorship opportunity with automatic sync
+   */
+  static async createOpportunityWithSync(
+    opportunity: SponsorshipOpportunity
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      // Save to localStorage immediately
+      this.saveOpportunity(opportunity);
+
+      // Get current user ID from sync service
+      const userId = businessSyncService.getCurrentUserId();
+      if (!userId) {
+        return { success: false, error: 'Usuário não autenticado' };
+      }
+
+      // Queue sync operation
+      await businessSyncService.enqueue(
+        'CREATE_OPPORTUNITY',
+        'sponsorship_opportunities',
+        opportunity.id,
+        opportunity,
+        userId
+      );
+
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to create opportunity with sync:', error);
+      return { success: false, error: String(error) };
+    }
+  }
+
+  /**
+   * Update sponsorship opportunity with automatic sync
+   */
+  static async updateOpportunityWithSync(
+    opportunity: SponsorshipOpportunity
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      // Save to localStorage immediately
+      this.saveOpportunity(opportunity);
+
+      // Get current user ID from sync service
+      const userId = businessSyncService.getCurrentUserId();
+      if (!userId) {
+        return { success: false, error: 'Usuário não autenticado' };
+      }
+
+      // Queue sync operation
+      await businessSyncService.enqueue(
+        'UPDATE_OPPORTUNITY',
+        'sponsorship_opportunities',
+        opportunity.id,
+        opportunity,
+        userId
+      );
+
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to update opportunity with sync:', error);
+      return { success: false, error: String(error) };
+    }
+  }
+
+  /**
+   * Create commercial event with automatic sync
+   */
+  static async createCommercialEventWithSync(
+    event: CommercialEventEntity
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      // Save to localStorage immediately
+      this.saveCommercialEvent(event);
+
+      // Get current user ID from sync service
+      const userId = businessSyncService.getCurrentUserId();
+      if (!userId) {
+        return { success: false, error: 'Usuário não autenticado' };
+      }
+
+      // Queue sync operation
+      await businessSyncService.enqueue(
+        'CREATE_EVENT',
+        'commercial_events',
+        event.id,
+        event,
+        userId
+      );
+
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to create event with sync:', error);
+      return { success: false, error: String(error) };
+    }
+  }
+
+  /**
+   * Update commercial event with automatic sync
+   */
+  static async updateCommercialEventWithSync(
+    event: CommercialEventEntity
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      // Save to localStorage immediately
+      this.saveCommercialEvent(event);
+
+      // Get current user ID from sync service
+      const userId = businessSyncService.getCurrentUserId();
+      if (!userId) {
+        return { success: false, error: 'Usuário não autenticado' };
+      }
+
+      // Queue sync operation
+      await businessSyncService.enqueue(
+        'UPDATE_EVENT',
+        'commercial_events',
+        event.id,
+        event,
+        userId
+      );
+
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to update event with sync:', error);
+      return { success: false, error: String(error) };
+    }
   }
 }

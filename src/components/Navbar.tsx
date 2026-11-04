@@ -14,6 +14,7 @@ import {
 import { UserProfile } from '../types';
 import { StravaFightLogo } from './StravaFightLogo';
 import { PWAInstallButton } from './PWAInstallButton';
+import { BusinessSyncBadge } from './BusinessSyncIndicator';
 
 interface NavbarProps {
   currentUser: UserProfile;
@@ -149,6 +150,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Moon className="w-4 h-4" />
             )}
           </button>
+
+          {/* SF Business Sync Status */}
+          <BusinessSyncBadge />
 
           {/* Notifications Icon */}
           <button

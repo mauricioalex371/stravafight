@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
   Heart, 
   MessageCircle, 
@@ -67,6 +67,9 @@ export const FeedView: React.FC<FeedViewProps> = ({
 
   // Memoize active feed campaigns to eliminate redundant parsing inside map loop
   const activeAds = useMemo(() => BusinessService.getActiveCampaignsForPlacement('FEED'), []);
+  
+  // Track impressions for ads already shown
+  const impressionsRecorded = useRef<Set<string>>(new Set());
 
   const filteredPosts = useMemo(() => {
     return posts.filter((p) => {
@@ -438,20 +441,34 @@ export const FeedView: React.FC<FeedViewProps> = ({
               </div>
             </article>
 
-            {shouldShowFirstAd && (
-              <SponsoredPostCard 
-                campaign={activeAds[0]} 
-                currentUser={currentUser} 
-                onNavigateBusiness={() => onNavigateView('business')} 
-              />
-            )}
-            {shouldShowSecondAd && (
-              <SponsoredPostCard 
-                campaign={activeAds[1]} 
-                currentUser={currentUser} 
-                onNavigateBusiness={() => onNavigateView('business')} 
-              />
-            )}
+            {shouldShowFirstAd && (() => {
+              const adId = activeAds[0].id;
+              if (!impressionsRecorded.current.has(adId)) {
+                BusinessService.recordAdImpression(adId, currentUser.id);
+                impressionsRecorded.current.add(adId);
+              }
+              return (
+                <SponsoredPostCard 
+                  campaign={activeAds[0]} 
+                  currentUser={currentUser} 
+                  onNavigateBusiness={() => onNavigateView('business')} 
+                />
+              );
+            })()}
+            {shouldShowSecondAd && (() => {
+              const adId = activeAds[1].id;
+              if (!impressionsRecorded.current.has(adId)) {
+                BusinessService.recordAdImpression(adId, currentUser.id);
+                impressionsRecorded.current.add(adId);
+              }
+              return (
+                <SponsoredPostCard 
+                  campaign={activeAds[1]} 
+                  currentUser={currentUser} 
+                  onNavigateBusiness={() => onNavigateView('business')} 
+                />
+              );
+            })()}
           </React.Fragment>
         );
       })}

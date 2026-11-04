@@ -873,6 +873,7 @@ export default function App() {
           {currentView === 'reels' && (
             <ReelsView
               reels={reels}
+              currentUser={currentUser}
               onToggleLike={handleToggleLikeReel}
               onToggleSave={handleToggleSaveReel}
               onOpenComments={() => {

@@ -239,4 +239,36 @@ export class AuthService {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(callback);
     return subscription;
   }
+
+  /**
+   * Login com OAuth Social (Google, Facebook, Apple)
+   */
+  static async signInWithOAuth(provider: 'google' | 'facebook' | 'apple'): Promise<AuthResponse> {
+    if (!isSupabaseReady()) {
+      return { success: false, error: 'Supabase não configurado' };
+    }
+
+    try {
+      const redirectTo = `${window.location.origin}/auth/callback`;
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent'
+          }
+        }
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true, data };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Falha no login social' };
+    }
+  }
 }

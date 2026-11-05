@@ -58,12 +58,24 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onSignup }) => 
           <div className="mb-8 animate-in zoom-in fade-in duration-700">
             <div className="relative">
               <div className="absolute inset-0 blur-2xl bg-[#1976D2] opacity-30 animate-pulse" />
-              <img 
-                src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=400&auto=format&fit=crop&q=80"
-                alt="STRAVA FIGHT Logo"
-                className="relative w-56 h-auto drop-shadow-2xl"
-                style={{ filter: 'drop-shadow(0 0 30px rgba(25, 118, 210, 0.5))' }}
-              />
+              <div className="relative flex flex-col items-center gap-4">
+                {/* SF Icon */}
+                <div className="w-40 h-28 flex items-center justify-center">
+                  <svg viewBox="0 0 400 200" className="w-full h-full drop-shadow-2xl">
+                    {/* S vermelho */}
+                    <path d="M10 40 L90 40 L90 70 L50 70 L50 90 L90 90 L90 120 L10 120 L10 90 L50 90 L50 70 L10 70 Z" fill="#FF0000"/>
+                    {/* F branco */}
+                    <path d="M100 40 L150 40 L130 80 L150 80 L150 90 L130 90 L100 120 Z" fill="#FFFFFF"/>
+                    <polygon points="150,40 180,40 200,80 190,80" fill="#FFFFFF"/>
+                    <path d="M200 40 L240 40 L240 70 L210 70 L210 90 L230 90 L230 100 L210 100 L210 120 L200 120 Z" fill="#FFFFFF"/>
+                  </svg>
+                </div>
+                {/* STRAVA FIGHT texto */}
+                <div className="flex items-center gap-2 text-3xl font-black tracking-wider">
+                  <span className="text-white">STRAVA</span>
+                  <span className="text-[#FF0000]">FIGHT</span>
+                </div>
+              </div>
             </div>
           </div>
 

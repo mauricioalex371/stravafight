@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+  <!-- SF Logo em vermelho e branco -->
+  <defs>
+    <style>
+      .sf-red { fill: #FF0000; }
+      .sf-white { fill: #FFFFFF; }
+      .sf-text-white { fill: #FFFFFF; font-family: Arial, sans-serif; font-weight: 900; }
+      .sf-text-red { fill: #FF0000; font-family: Arial, sans-serif; font-weight: 900; }
+    </style>
+  </defs>
+  
+  <!-- S vermelho -->
+  <path class="sf-red" d="M50 200 L450 200 L450 350 L250 350 L250 450 L450 450 L450 600 L50 600 L50 450 L250 450 L250 350 L50 350 Z"/>
+  
+  <!-- F branco -->
+  <path class="sf-white" d="M500 200 L750 200 L650 400 L750 400 L750 450 L650 450 L500 600 Z"/>
+  
+  <!-- Texto STRAVA -->
+  <text x="100" y="700" class="sf-text-white" font-size="80">STRAVA</text>
+  
+  <!-- Texto FIGHT -->
+  <text x="480" y="700" class="sf-text-red" font-size="80">FIGHT</text>
+</svg>

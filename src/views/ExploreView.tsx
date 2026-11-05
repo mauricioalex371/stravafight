@@ -21,6 +21,7 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('TUDO');
+  const [searchResults, setSearchResults] = useState<SearchResultItem[]>([]);
 
   const categories = [
     'TUDO',
@@ -36,9 +37,18 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
   ];
 
   // Global search hits from multi-entity search service
-  const searchResults: SearchResultItem[] = useMemo(() => {
-    if (!searchQuery.trim()) return [];
-    return SearchService.search(searchQuery, 'TUDO', activeCategory);
+  React.useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    let cancelled = false;
+    SearchService.search(searchQuery, 'TUDO', activeCategory).then((results) => {
+      if (!cancelled) setSearchResults(results);
+    });
+
+    return () => { cancelled = true; };
   }, [searchQuery, activeCategory]);
 
   // Combined explore grid items for the visual feed

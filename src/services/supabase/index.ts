@@ -15,6 +15,9 @@ export { CommentsService } from './commentsService';
 export { FollowersService } from './followersService';
 export type { FollowerUser } from './followersService';
 
+export { RecommendationsService } from './recommendationsService';
+export type { RecommendedUser } from './recommendationsService';
+
 export { NotificationsService } from './notificationsService';
 export type { NotificationType, CreateNotificationParams } from './notificationsService';
 

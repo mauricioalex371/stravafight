@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Users, 
   UserPlus, 
@@ -13,6 +13,7 @@ import {
   Swords
 } from 'lucide-react';
 import { FriendRequest, UserProfile } from '../types';
+import { RecommendationsService, RecommendedUser } from '../services/supabase/recommendationsService';
 
 interface FriendsViewProps {
   currentUser: UserProfile;
@@ -35,6 +36,18 @@ export const FriendsView: React.FC<FriendsViewProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'friends' | 'requests' | 'suggestions'>('friends');
   const [search, setSearch] = useState('');
+  const [recommendedUsers, setRecommendedUsers] = useState<RecommendedUser[]>([]);
+  const [loadingRecommendations, setLoadingRecommendations] = useState(false);
+
+  // Carregar recomendações quando abrir a aba de sugestões
+  useEffect(() => {
+    if (activeTab === 'suggestions' && recommendedUsers.length === 0) {
+      setLoadingRecommendations(true);
+      RecommendationsService.getRecommendedUsers(currentUser.id, 20)
+        .then(setRecommendedUsers)
+        .finally(() => setLoadingRecommendations(false));
+    }
+  }, [activeTab, currentUser.id, recommendedUsers.length]);
 
   // Sample existing friends
   const myFriends = [
@@ -238,26 +251,47 @@ export const FriendsView: React.FC<FriendsViewProps> = ({
       {/* Tab: Suggestions */}
       {activeTab === 'suggestions' && (
         <div className="space-y-2.5">
-          {suggestions.map((sug) => (
-            <div key={sug.id} className="p-3.5 rounded-2xl bg-[#071321]/60 border border-[#171C25] flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <img src={sug.avatar} alt={sug.name} className="w-12 h-12 rounded-full object-cover border border-[#171C25]" />
-                <div>
-                  <h4 className="text-xs font-bold text-white">{sug.name}</h4>
-                  <p className="text-[10px] text-[#F20D18] font-bold">{sug.belt} • {sug.modality}</p>
-                  <p className="text-[10px] text-[#94A3B8] mt-0.5">{sug.city} • {sug.mutuals} amigos em comum</p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => alert(`Solicitação enviada para ${sug.name}!`)}
-                className="min-h-[36px] px-3.5 rounded-xl bg-[#0D121C] border border-[#171C25] text-white font-bold text-xs flex items-center gap-1.5 hover:border-[#F20D18] active:scale-95 transition-all"
-              >
-                <UserPlus className="w-3.5 h-3.5 text-[#F20D18]" />
-                <span>Conectar</span>
-              </button>
+          {loadingRecommendations ? (
+            <div className="p-8 text-center text-[#94A3B8]">
+              <div className="w-8 h-8 border-2 border-[#F20D18] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+              <p className="text-xs font-bold">Buscando sugestões...</p>
             </div>
-          ))}
+          ) : recommendedUsers.length === 0 ? (
+            <div className="p-8 text-center text-[#94A3B8] bg-[#071321]/40 border border-[#171C25] rounded-3xl">
+              <Users className="w-8 h-8 mx-auto mb-2 text-[#94A3B8]" />
+              <p className="text-xs font-bold text-white">Nenhuma sugestão no momento</p>
+              <p className="text-[10px] text-[#94A3B8] mt-1">Complete seu perfil para receber recomendações personalizadas</p>
+            </div>
+          ) : (
+            recommendedUsers.map((sug) => (
+              <div key={sug.id} className="p-3.5 rounded-2xl bg-[#071321]/60 border border-[#171C25] flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0 flex-1" onClick={() => onNavigateUser(sug.username)} role="button">
+                  <img src={sug.avatarUrl} alt={sug.fullName} className="w-12 h-12 rounded-full object-cover border border-[#171C25] shrink-0" />
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <h4 className="text-xs font-bold text-white truncate">{sug.fullName}</h4>
+                      {sug.isVerified && <ShieldCheck className="w-3 h-3 text-[#F20D18] shrink-0" />}
+                    </div>
+                    <p className="text-[10px] text-[#F20D18] font-bold truncate">
+                      {sug.modalities.length > 0 ? sug.modalities[0].belt || sug.modalities[0].modality : sug.role}
+                    </p>
+                    <p className="text-[10px] text-[#94A3B8] mt-0.5 truncate">
+                      {sug.matchReason}
+                      {sug.mutualFriends && sug.mutualFriends > 0 && ` • ${sug.mutualFriends} amigos em comum`}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => alert(`Seguindo ${sug.fullName}!`)}
+                  className="min-h-[36px] px-3.5 rounded-xl bg-[#0D121C] border border-[#171C25] text-white font-bold text-xs flex items-center gap-1.5 hover:border-[#F20D18] active:scale-95 transition-all shrink-0"
+                >
+                  <UserPlus className="w-3.5 h-3.5 text-[#F20D18]" />
+                  <span>Seguir</span>
+                </button>
+              </div>
+            ))
+          )}
         </div>
       )}
     </div>

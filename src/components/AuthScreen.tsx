@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, Flame, ArrowLeft } from 'lucide-react';
+import { Analytics } from '../utils/analytics';
 
 interface AuthScreenProps {
   onLogin: () => void;
@@ -18,6 +19,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onSignup }) => 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (mode === 'login') {
+      Analytics.trackLogin('email');
       onLogin();
     } else if (mode === 'signup') {
       onSignup();

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Flame, Users, Trophy, Swords, ChevronRight } from 'lucide-react';
+import { Analytics } from '../utils/analytics';
 
 interface OnboardingScreenProps {
   onComplete: () => void;
@@ -32,15 +33,22 @@ const slides = [
 export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  // Track onboarding start
+  React.useEffect(() => {
+    Analytics.trackOnboardingStart();
+  }, []);
+
   const handleNext = () => {
     if (currentSlide < slides.length - 1) {
       setCurrentSlide(currentSlide + 1);
     } else {
+      Analytics.trackOnboardingComplete();
       onComplete();
     }
   };
 
   const handleSkip = () => {
+    Analytics.trackOnboardingSkip();
     onComplete();
   };
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { User, MapPin, Trophy, GraduationCap, Building2, Check, ArrowLeft, ArrowRight } from 'lucide-react';
 import { UserProfile } from '../types';
 import { generateUUID } from '../utils/formatters';
+import { Analytics } from '../utils/analytics';
 
 interface SignupFlowProps {
   onComplete: (user: UserProfile) => void;
@@ -92,6 +93,9 @@ export const SignupFlow: React.FC<SignupFlowProps> = ({ onComplete, onBack }) =>
       beltRankSocial: 'Iniciante SF',
       badges: []
     };
+
+    // Track complete registration
+    Analytics.trackCompleteRegistration('email');
 
     onComplete(newUser);
   };

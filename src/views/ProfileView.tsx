@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { UserProfile, Post, Reel, AchievementBadge, CombatChallenge } from '../types';
 import { FollowersService, NotificationsService } from '../services/supabase';
+import { EditProfileModal } from '../components/EditProfileModal';
 
 interface ProfileViewProps {
   user: UserProfile;
@@ -633,79 +634,18 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       )}
 
       {/* Edit Profile Modal */}
-      {isEditModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-in fade-in select-none">
-          <div className="w-full max-w-md bg-[#0D121C] border border-[#171C25] rounded-3xl p-5 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-[#171C25] mb-4">
-              <h3 className="text-base font-black text-white">Editar Perfil</h3>
-              <button onClick={() => setIsEditModalOpen(false)} className="text-[#94A3B8] hover:text-white">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveProfile} className="space-y-3.5">
-              <div>
-                <label className="block text-xs font-bold text-[#CBD5E1] mb-1">Nome Completo</label>
-                <input 
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full min-h-[42px] px-3.5 rounded-xl bg-[#05070B] border border-[#171C25] text-white text-xs focus:border-[#F20D18] focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[#CBD5E1] mb-1">Biografia</label>
-                <textarea 
-                  rows={3}
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  className="w-full p-3 rounded-xl bg-[#05070B] border border-[#171C25] text-white text-xs focus:border-[#F20D18] focus:outline-none resize-none leading-relaxed"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2.5">
-                <div>
-                  <label className="block text-xs font-bold text-[#CBD5E1] mb-1">Modalidade Principal</label>
-                  <input 
-                    type="text"
-                    value={primaryModality}
-                    onChange={(e) => setPrimaryModality(e.target.value)}
-                    className="w-full min-h-[42px] px-3.5 rounded-xl bg-[#05070B] border border-[#171C25] text-white text-xs focus:border-[#F20D18] focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[#CBD5E1] mb-1">Graduação / Faixa</label>
-                  <input 
-                    type="text"
-                    value={primaryBelt}
-                    onChange={(e) => setPrimaryBelt(e.target.value)}
-                    className="w-full min-h-[42px] px-3.5 rounded-xl bg-[#05070B] border border-[#171C25] text-white text-xs focus:border-[#F20D18] focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[#CBD5E1] mb-1">Localização</label>
-                <input 
-                  type="text"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  className="w-full min-h-[42px] px-3.5 rounded-xl bg-[#05070B] border border-[#171C25] text-white text-xs focus:border-[#F20D18] focus:outline-none"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full min-h-[46px] rounded-xl bg-[#F20D18] text-white font-black text-xs flex items-center justify-center gap-2 hover:bg-[#d90812] active:scale-95 transition-all shadow-md shadow-[#F20D18]/25 mt-4"
-              >
-                <Check className="w-4 h-4" />
-                <span>Salvar Alterações</span>
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+      <EditProfileModal
+        user={user}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={(updates) => {
+          const updated: UserProfile = {
+            ...user,
+            ...updates
+          };
+          onUpdateProfile(updated);
+        }}
+      />
     </div>
   );
 };

@@ -39,13 +39,7 @@ export function FighterRecordCard({ sherdogId }: Props) {
   useEffect(() => {
     let active = true;
     setLoading(true);
-    
-    if (sherdogId == null) {
-      setLoading(false);
-      return;
-    }
-    
-    FighterService.getBySherdogId(sherdogId).then((f) => {
+    FighterService.getBySherdogId(sherdogId ?? null).then((f) => {
       if (active) {
         setFighter(f);
         setLoading(false);

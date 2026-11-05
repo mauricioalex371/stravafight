@@ -54,78 +54,58 @@ export const BottomNav: React.FC<BottomNavProps> = ({
     };
   }, [currentUser?.id]);
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#05070B]/95 backdrop-blur-lg border-t border-[#171C25] pb-[env(safe-area-inset-bottom)] shadow-2xl">
-      <div className="flex items-center justify-around max-w-md mx-auto px-2 py-1">
-        {/* 1. Feed / Início */}
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#05070B] border-t border-[#171C25] pb-[env(safe-area-inset-bottom)]">
+      <div className="flex items-center justify-around max-w-md mx-auto px-1 py-2">
+        {/* 1. Início */}
         <button
           onClick={() => onChangeView('feed')}
-          className={`flex flex-col items-center justify-center min-w-[56px] min-h-[50px] py-1 transition-all active:scale-90 ${
-            currentView === 'feed' ? 'text-[#F20D18]' : 'text-[#94A3B8] hover:text-white'
+          className={`flex items-center justify-center w-12 h-12 transition-colors ${
+            currentView === 'feed' ? 'text-white' : 'text-[#94A3B8]'
           }`}
           aria-label="Início"
         >
-          <Home className={`w-5 h-5 transition-transform ${currentView === 'feed' ? 'scale-110 stroke-[2.5]' : ''}`} />
-          <span className={`text-[10px] mt-1 font-medium ${currentView === 'feed' ? 'font-bold text-white' : ''}`}>
-            Início
-          </span>
+          <Home className={`w-7 h-7 ${currentView === 'feed' ? 'fill-white' : ''}`} />
         </button>
 
         {/* 2. Explorar */}
         <button
           onClick={() => onChangeView('explore')}
-          className={`flex flex-col items-center justify-center min-w-[56px] min-h-[50px] py-1 transition-all active:scale-90 ${
-            currentView === 'explore' ? 'text-[#F20D18]' : 'text-[#94A3B8] hover:text-white'
+          className={`flex items-center justify-center w-12 h-12 transition-colors ${
+            currentView === 'explore' ? 'text-white' : 'text-[#94A3B8]'
           }`}
           aria-label="Explorar"
         >
-          <Search className={`w-5 h-5 transition-transform ${currentView === 'explore' ? 'scale-110 stroke-[2.5]' : ''}`} />
-          <span className={`text-[10px] mt-1 font-medium ${currentView === 'explore' ? 'font-bold text-white' : ''}`}>
-            Explorar
-          </span>
+          <Search className={`w-7 h-7 ${currentView === 'explore' ? 'stroke-[2.5px]' : ''}`} />
         </button>
 
-        {/* 3. Criar (+) / Check-in */}
+        {/* 3. Criar */}
         <button
           onClick={onOpenCreateMenu}
-          className="flex flex-col items-center justify-center min-w-[56px] min-h-[50px] py-1 text-white group active:scale-90 transition-all"
+          className="flex items-center justify-center w-12 h-12 text-white transition-colors"
           aria-label="Criar"
         >
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#F20D18] to-[#FF4A0F] flex items-center justify-center shadow-md shadow-[#F20D18]/30 group-hover:scale-105 transition-transform">
-            <PlusSquare className="w-5 h-5 text-white" />
-          </div>
+          <PlusSquare className="w-7 h-7" />
         </button>
 
-        {/* 4. Notificações */}
+        {/* 4. Reels */}
         <button
-          onClick={() => onChangeView('notifications')}
-          className={`flex flex-col items-center justify-center min-w-[56px] min-h-[50px] py-1 transition-all active:scale-90 relative ${
-            currentView === 'notifications' ? 'text-[#F20D18]' : 'text-[#94A3B8] hover:text-white'
+          onClick={() => onChangeView('reels')}
+          className={`flex items-center justify-center w-12 h-12 transition-colors ${
+            currentView === 'reels' ? 'text-white' : 'text-[#94A3B8]'
           }`}
-          aria-label="Notificações"
+          aria-label="Reels"
         >
-          <div className="relative">
-            <Bell className={`w-5 h-5 transition-transform ${currentView === 'notifications' ? 'scale-110 stroke-[2.5]' : ''}`} />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#F20D18] text-white text-[9px] font-black rounded-full flex items-center justify-center ring-2 ring-[#05070B]">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
-          </div>
-          <span className={`text-[10px] mt-1 font-medium ${currentView === 'notifications' ? 'font-bold text-white' : ''}`}>
-            Notif.
-          </span>
+          <Clapperboard className={`w-7 h-7 ${currentView === 'reels' ? 'fill-white' : ''}`} />
         </button>
 
         {/* 5. Perfil */}
         <button
           onClick={() => onChangeView('profile')}
-          className={`flex flex-col items-center justify-center min-w-[56px] min-h-[50px] py-1 transition-all active:scale-90 ${
-            currentView === 'profile' ? 'text-[#F20D18]' : 'text-[#94A3B8] hover:text-white'
-          }`}
+          className="flex items-center justify-center w-12 h-12"
           aria-label="Perfil"
         >
-          <div className={`w-6 h-6 rounded-full overflow-hidden border-2 transition-all ${
-            currentView === 'profile' ? 'border-[#F20D18] scale-110' : 'border-transparent'
+          <div className={`w-7 h-7 rounded-full overflow-hidden border-2 ${
+            currentView === 'profile' ? 'border-white' : 'border-[#94A3B8]'
           }`}>
             <img 
               src={currentUser.avatarUrl} 
@@ -133,9 +113,6 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               className="w-full h-full object-cover" 
             />
           </div>
-          <span className={`text-[10px] mt-0.5 font-medium ${currentView === 'profile' ? 'font-bold text-white' : ''}`}>
-            Perfil
-          </span>
         </button>
       </div>
     </nav>

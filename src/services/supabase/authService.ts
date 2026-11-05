@@ -57,12 +57,20 @@ export class AuthService {
 
       // Se o usuário foi criado, insere ou atualiza o perfil público
       if (data.user) {
+        // Extrair sherdogId da URL se fornecida
+        let sherdogId: number | null = null;
+        if (payload.sherdogUrl) {
+          const match = payload.sherdogUrl.match(/fighter\/[^/]+-(\d+)$/);
+          sherdogId = match ? parseInt(match[1]) : null;
+        }
+
         await supabase.from('profiles').upsert({
           id: data.user.id,
           username: payload.username.toLowerCase().replace(/[^a-z0-9_.]/g, ''),
           full_name: payload.fullName,
           role: payload.role || 'Atleta',
           sherdog_url: payload.sherdogUrl || null,
+          sherdog_id: sherdogId,
           created_at: new Date().toISOString()
         });
       }

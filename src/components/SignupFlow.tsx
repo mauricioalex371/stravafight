@@ -6,6 +6,13 @@ import { Analytics } from '../utils/analytics';
 import { StorageService } from '../services/storageService';
 import { AuthService } from '../services/supabase';
 
+// Helper function to extract sherdog ID from URL
+function extractSherdogId(url: string): number | null {
+  if (!url) return null;
+  const match = url.match(/fighter\/[^/]+-(\d+)$/);
+  return match ? parseInt(match[1]) : null;
+}
+
 interface SignupFlowProps {
   email: string;
   password: string;
@@ -48,6 +55,7 @@ export const SignupFlow: React.FC<SignupFlowProps> = ({ email, password, onCompl
     location: '',
     bio: '',
     academyName: '',
+    sherdogUrl: '',
     selectedModalities: [] as string[],
     modalityBelts: {} as Record<string, string>
   });
@@ -141,7 +149,8 @@ export const SignupFlow: React.FC<SignupFlowProps> = ({ email, password, onCompl
         fullName: formData.fullName,
         username: formData.username,
         role: 'Atleta',
-        modality: formData.selectedModalities[0] || 'Jiu-Jitsu'
+        modality: formData.selectedModalities[0] || 'Jiu-Jitsu',
+        sherdogUrl: formData.sherdogUrl || undefined
       });
 
       if (!result.success) {
@@ -175,7 +184,9 @@ export const SignupFlow: React.FC<SignupFlowProps> = ({ email, password, onCompl
         totalCheckIns: 0,
         xpPoints: 0,
         beltRankSocial: 'Iniciante SF',
-        badges: []
+        badges: [],
+        sherdogUrl: formData.sherdogUrl || undefined,
+        sherdogId: formData.sherdogUrl ? extractSherdogId(formData.sherdogUrl) : undefined
       };
 
       // 3. Salvar também no localStorage (cache local)
@@ -364,6 +375,22 @@ export const SignupFlow: React.FC<SignupFlowProps> = ({ email, password, onCompl
                     placeholder="Nome da sua academia"
                     className="w-full h-14 px-4 bg-[#0D121C] border border-[#1F2937] rounded-xl text-white placeholder:text-[#475569] focus:border-[#F20D18] focus:ring-2 focus:ring-[#F20D18]/20 outline-none transition-all"
                   />
+                </div>
+
+                <div>
+                  <label className="text-sm font-bold text-[#CBD5E1] mb-2 block flex items-center gap-2">
+                    🥊 Perfil Sherdog (opcional)
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.sherdogUrl}
+                    onChange={(e) => setFormData({ ...formData, sherdogUrl: e.target.value })}
+                    placeholder="https://www.sherdog.com/fighter/Seu-Nome-123456"
+                    className="w-full h-14 px-4 bg-[#0D121C] border border-[#1F2937] rounded-xl text-white placeholder:text-[#475569] focus:border-[#F20D18] focus:ring-2 focus:ring-[#F20D18]/20 outline-none transition-all"
+                  />
+                  <p className="text-xs text-[#64748B] mt-2">
+                    Lutador profissional? Cole o link do seu perfil no Sherdog.com
+                  </p>
                 </div>
               </div>
             </div>

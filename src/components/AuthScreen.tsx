@@ -55,34 +55,35 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onSignup }) => 
   // Welcome Screen
   if (mode === 'welcome') {
     return (
-      <div className="fixed inset-0 z-[9997] bg-gradient-to-br from-[#0A1929] via-[#0D1B2A] to-[#0F1E2E] flex flex-col items-center justify-between p-8 overflow-hidden">
+      <div className="fixed inset-0 z-[9997] bg-gradient-to-br from-[#05070B] via-[#0D121C] to-[#1F2937] flex flex-col items-center justify-between p-8 overflow-hidden">
         {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-[#1976D2] rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#42A5F5] rounded-full blur-3xl" />
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-[#F20D18] rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#FF4A0F] rounded-full blur-3xl" />
         </div>
 
         <div className="relative z-10 flex-1 flex flex-col items-center justify-center w-full max-w-md">
-          {/* Logo Image */}
-          <div className="mb-8 animate-in zoom-in fade-in duration-700">
+          {/* Logo STRAVA FIGHT Oficial */}
+          <div className="mb-12 animate-in zoom-in fade-in duration-700">
             <div className="relative">
-              <div className="absolute inset-0 blur-2xl bg-[#1976D2] opacity-30 animate-pulse" />
-              <div className="relative flex flex-col items-center gap-4">
-                {/* SF Icon */}
-                <div className="w-40 h-28 flex items-center justify-center">
-                  <svg viewBox="0 0 400 200" className="w-full h-full drop-shadow-2xl">
-                    {/* S vermelho */}
-                    <path d="M10 40 L90 40 L90 70 L50 70 L50 90 L90 90 L90 120 L10 120 L10 90 L50 90 L50 70 L10 70 Z" fill="#FF0000"/>
-                    {/* F branco */}
-                    <path d="M100 40 L150 40 L130 80 L150 80 L150 90 L130 90 L100 120 Z" fill="#FFFFFF"/>
-                    <polygon points="150,40 180,40 200,80 190,80" fill="#FFFFFF"/>
-                    <path d="M200 40 L240 40 L240 70 L210 70 L210 90 L230 90 L230 100 L210 100 L210 120 L200 120 Z" fill="#FFFFFF"/>
-                  </svg>
-                </div>
-                {/* STRAVA FIGHT texto */}
-                <div className="flex items-center gap-2 text-3xl font-black tracking-wider">
-                  <span className="text-white">STRAVA</span>
-                  <span className="text-[#FF0000]">FIGHT</span>
+              <div className="absolute inset-0 blur-3xl bg-[#F20D18] opacity-20 animate-pulse" />
+              <div className="relative">
+                <img 
+                  src="/assets/aistudio/LOGO_47d32ee0.jpg" 
+                  alt="STRAVA FIGHT" 
+                  className="w-64 h-auto drop-shadow-2xl"
+                  onError={(e) => {
+                    // Fallback se imagem não carregar
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+                {/* Fallback text logo */}
+                <div className="hidden flex-col items-center gap-3">
+                  <div className="flex items-center gap-2 text-4xl font-black tracking-wider">
+                    <span className="text-white">STRAVA</span>
+                    <span className="text-[#F20D18]">FIGHT</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -90,9 +91,14 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onSignup }) => 
 
           {/* Tagline */}
           <div className="text-center mb-16 animate-in slide-in-from-bottom-4 fade-in duration-700 delay-100">
-            <div className="flex items-center justify-center gap-2 text-[#90CAF9] text-base font-semibold">
-              <span className="text-2xl">🌍</span>
-              <span>Uma comunidade sem fronteiras</span>
+            <div className="flex flex-col items-center gap-3">
+              <p className="text-white text-xl font-black tracking-wide">
+                Esforço que transforma. Luta que evolui.
+              </p>
+              <div className="flex items-center gap-2 text-[#94A3B8] text-sm font-semibold">
+                <span className="text-xl">🥋</span>
+                <span>A rede social das artes marciais</span>
+              </div>
             </div>
           </div>
 
@@ -100,14 +106,14 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onSignup }) => 
           <div className="w-full space-y-4 animate-in slide-in-from-bottom-4 fade-in duration-700 delay-200">
             <button
               onClick={() => setMode('signup')}
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#1976D2] to-[#1565C0] text-white font-black text-base shadow-lg shadow-[#1976D2]/30 active:scale-95 transition-transform"
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#F20D18] to-[#FF4A0F] text-white font-black text-base shadow-lg shadow-[#F20D18]/30 active:scale-95 transition-transform"
             >
               Criar Conta
             </button>
             
             <button
               onClick={() => setMode('login')}
-              className="w-full py-4 rounded-2xl bg-[#1A2634] text-white font-bold text-base border border-[#263849] active:scale-95 transition-transform"
+              className="w-full py-4 rounded-2xl bg-[#1F2937] text-white font-bold text-base border border-[#374151] active:scale-95 transition-transform"
             >
               Já tenho conta
             </button>
@@ -115,12 +121,12 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onSignup }) => 
         </div>
 
         {/* Footer */}
-        <div className="relative z-10 text-center text-[#546E7A] text-xs">
+        <div className="relative z-10 text-center text-[#64748B] text-xs">
           <p>Ao continuar, você concorda com nossos</p>
           <p className="mt-1">
-            <button className="text-[#42A5F5] font-semibold">Termos de Uso</button>
+            <button className="text-[#F20D18] font-semibold">Termos de Uso</button>
             {' e '}
-            <button className="text-[#42A5F5] font-semibold">Política de Privacidade</button>
+            <button className="text-[#F20D18] font-semibold">Política de Privacidade</button>
           </p>
         </div>
       </div>

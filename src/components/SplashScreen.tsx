@@ -25,6 +25,21 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
 
   return (
     <div className="fixed inset-0 z-[9999] bg-gradient-to-br from-[#0A1929] via-[#0D1B2A] to-[#0F1E2E] flex flex-col items-center justify-center overflow-hidden">
+      {/* Video Background */}
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover opacity-40"
+        poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%230A1929' width='1' height='1'/%3E%3C/svg%3E"
+      >
+        <source src="https://res.cloudinary.com/wvucafte/video/upload/v1793890648/gemini_generated_video_73b77deb.mp4" type="video/mp4" />
+      </video>
+
+      {/* Overlay Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0A1929]/80 via-[#0D1B2A]/70 to-[#0F1E2E]/80" />
+
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-[#1976D2] to-transparent transform -skew-y-12" />

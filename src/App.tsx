@@ -44,6 +44,7 @@ const FriendsView = React.lazy(() => import('./views/FriendsView').then((m) => (
 const EventsView = React.lazy(() => import('./views/EventsView').then((m) => ({ default: m.EventsView })));
 const InstitutionalView = React.lazy(() => import('./views/InstitutionalView').then((m) => ({ default: m.InstitutionalView })));
 const AdminPanel = React.lazy(() => import('./views/AdminPanel').then((m) => ({ default: m.AdminPanel })));
+const AuthCallbackView = React.lazy(() => import('./views/AuthCallbackView').then((m) => ({ default: m.AuthCallbackView })));
 
 // Dynamic code-splitting for heavy modals
 const SfActivityModal = React.lazy(() => import('./components/SfActivityModal').then((m) => ({ default: m.SfActivityModal })));
@@ -68,11 +69,14 @@ const ViewLoadingFallback = () => (
 
 
 export default function App() {
-  // Check if accessing admin panel
+  // Check if accessing admin panel or OAuth callback
   useEffect(() => {
     if (window.location.pathname === '/secret') {
       setCurrentView('admin');
       setAppState('main');
+    } else if (window.location.pathname === '/auth/callback') {
+      // OAuth callback will be handled by AuthCallbackView component
+      return;
     }
   }, []);
 
@@ -930,6 +934,11 @@ export default function App() {
     !n.isRead && 
     n.userId === currentUser.id
   ).length;
+
+  // Special Routes (must render before state checks)
+  if (window.location.pathname === '/auth/callback') {
+    return <AuthCallbackView />;
+  }
 
   // Render App State Flow
   if (appState === 'splash') {

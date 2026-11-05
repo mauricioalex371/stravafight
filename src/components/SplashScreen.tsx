@@ -55,9 +55,9 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
       </video>
 
       {/* 3D Animated Loader - Positioned at Bottom */}
-      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-4">
+      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-[100] flex flex-col items-center gap-4">
         {/* 3D Loader */}
-        <span className="loader"></span>
+        <span className="loader drop-shadow-2xl"></span>
       </div>
     </div>
   );

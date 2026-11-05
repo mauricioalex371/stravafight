@@ -49,13 +49,14 @@
 .loader {
   --color-1: #fff;
   --color-2: #FF0000;
-  --size: 1px;
+  --size: 2px;
   transform: rotateZ(45deg);
   perspective: calc(1000 * var(--size));
   border-radius: 50%;
   width: calc(48 * var(--size));
   height: calc(48 * var(--size));
   color: var(--color-1);
+  position: relative;
 }
 
 .loader:before,

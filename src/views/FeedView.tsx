@@ -137,43 +137,6 @@ export const FeedView: React.FC<FeedViewProps> = ({
           </div>
         </div>
 
-        {/* 2. Tatame Streak & SF Activity Official Filter CTA */}
-        <div className="relative overflow-hidden p-4 rounded-3xl bg-gradient-to-r from-[#071321] via-[#0D121C] to-[#171C25] border border-[#F20D18]/30 shadow-lg">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#F20D18] to-[#990008] flex items-center justify-center shrink-0 shadow-glow-red">
-                <Flame className="w-6 h-6 text-white fill-white animate-pulse" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-xs font-black text-white uppercase tracking-wider">
-                    Tatame Streak: {currentUser.streakDays} Dias Seguidos
-                  </h3>
-                  <span className="text-[9px] bg-[#F20D18]/20 text-[#F20D18] font-black px-1.5 py-0.5 rounded border border-[#F20D18]/40">
-                    ATIVO
-                  </span>
-                </div>
-                <p className="text-[11px] text-[#94A3B8] mt-0.5 font-serif italic">
-                  “Esforço que transforma, luta que evolui.”
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 self-end sm:self-center">
-              {onOpenSfActivity && (
-                <button
-                  onClick={onOpenSfActivity}
-                  className="min-h-[38px] px-3.5 rounded-xl bg-gradient-to-r from-[#F20D18] to-[#FF4A0F] text-white font-black text-xs flex items-center gap-1.5 hover:opacity-95 active:scale-95 transition-all shadow-md shadow-[#F20D18]/30 shrink-0"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Filtro de Treino</span>
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* 3. Modality Filter Chips */}
         <div className="flex gap-2 overflow-x-auto no-scrollbar py-1">
           {modalities.map((m) => {
             const isSelected = filterModality === m;

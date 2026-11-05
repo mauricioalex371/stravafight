@@ -46,14 +46,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleTheme
 }) => {
   return (
-    <header className="sticky top-0 z-40 bg-[#05070B]/98 backdrop-blur-md border-b border-[#171C25] px-4 py-3 transition-all">
-      <div className="max-w-xl mx-auto flex items-center justify-between">
+    <header className="sticky top-0 z-40 bg-[#05070B] border-b border-[#1F2937] px-4 py-3">
+      <div className="max-w-md mx-auto flex items-center justify-between">
         {/* Logo STRAVA FIGHT (estilo Instagram) */}
         <div 
           onClick={() => onNavigate('feed')}
           className="cursor-pointer select-none"
         >
-          <h1 className="text-xl font-black tracking-tight">
+          <h1 className="text-lg font-black tracking-tight">
             <span className="text-white">STRAVA </span>
             <span className="text-[#F20D18]">FIGHT</span>
           </h1>

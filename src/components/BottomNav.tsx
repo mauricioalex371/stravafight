@@ -54,58 +54,58 @@ export const BottomNav: React.FC<BottomNavProps> = ({
     };
   }, [currentUser?.id]);
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#05070B] border-t border-[#171C25] pb-[env(safe-area-inset-bottom)]">
-      <div className="flex items-center justify-around max-w-md mx-auto px-1 py-2">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#05070B] border-t border-[#1F2937] pb-safe">
+      <div className="flex items-center justify-around px-1 h-12">
         {/* 1. Início */}
         <button
           onClick={() => onChangeView('feed')}
-          className={`flex items-center justify-center w-12 h-12 transition-colors ${
-            currentView === 'feed' ? 'text-white' : 'text-[#94A3B8]'
+          className={`flex items-center justify-center w-14 h-12 transition-colors ${
+            currentView === 'feed' ? 'text-white' : 'text-[#71717A]'
           }`}
           aria-label="Início"
         >
-          <Home className={`w-7 h-7 ${currentView === 'feed' ? 'fill-white' : ''}`} />
+          <Home className={`w-6 h-6 ${currentView === 'feed' ? 'fill-white' : ''}`} />
         </button>
 
         {/* 2. Explorar */}
         <button
           onClick={() => onChangeView('explore')}
-          className={`flex items-center justify-center w-12 h-12 transition-colors ${
-            currentView === 'explore' ? 'text-white' : 'text-[#94A3B8]'
+          className={`flex items-center justify-center w-14 h-12 transition-colors ${
+            currentView === 'explore' ? 'text-white' : 'text-[#71717A]'
           }`}
           aria-label="Explorar"
         >
-          <Search className={`w-7 h-7 ${currentView === 'explore' ? 'stroke-[2.5px]' : ''}`} />
+          <Search className={`w-6 h-6 ${currentView === 'explore' ? 'stroke-[2.5px]' : ''}`} />
         </button>
 
         {/* 3. Criar */}
         <button
           onClick={onOpenCreateMenu}
-          className="flex items-center justify-center w-12 h-12 text-white transition-colors"
+          className="flex items-center justify-center w-14 h-12 text-white transition-colors"
           aria-label="Criar"
         >
-          <PlusSquare className="w-7 h-7" />
+          <PlusSquare className="w-6 h-6" />
         </button>
 
         {/* 4. Reels */}
         <button
           onClick={() => onChangeView('reels')}
-          className={`flex items-center justify-center w-12 h-12 transition-colors ${
-            currentView === 'reels' ? 'text-white' : 'text-[#94A3B8]'
+          className={`flex items-center justify-center w-14 h-12 transition-colors ${
+            currentView === 'reels' ? 'text-white' : 'text-[#71717A]'
           }`}
           aria-label="Reels"
         >
-          <Clapperboard className={`w-7 h-7 ${currentView === 'reels' ? 'fill-white' : ''}`} />
+          <Clapperboard className={`w-6 h-6 ${currentView === 'reels' ? 'fill-white' : ''}`} />
         </button>
 
         {/* 5. Perfil */}
         <button
           onClick={() => onChangeView('profile')}
-          className="flex items-center justify-center w-12 h-12"
+          className="flex items-center justify-center w-14 h-12"
           aria-label="Perfil"
         >
-          <div className={`w-7 h-7 rounded-full overflow-hidden border-2 ${
-            currentView === 'profile' ? 'border-white' : 'border-[#94A3B8]'
+          <div className={`w-6 h-6 rounded-full overflow-hidden border-2 ${
+            currentView === 'profile' ? 'border-white' : 'border-[#71717A]'
           }`}>
             <img 
               src={currentUser.avatarUrl} 

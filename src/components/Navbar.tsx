@@ -53,8 +53,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           onClick={() => onNavigate('feed')}
           className="cursor-pointer select-none"
         >
-          <h1 className="text-white text-xl font-black tracking-tight">
-            STRAVA FIGHT
+          <h1 className="text-xl font-black tracking-tight">
+            <span className="text-white">STRAVA </span>
+            <span className="text-[#F20D18]">FIGHT</span>
           </h1>
         </div>
 

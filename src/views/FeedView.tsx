@@ -94,11 +94,11 @@ export const FeedView: React.FC<FeedViewProps> = ({
 
 
   return (
-    <div className="max-w-6xl mx-auto flex gap-6 pb-20 md:pb-12">
+    <div className="max-w-6xl mx-auto flex gap-6 pb-20 md:pb-12 overflow-x-hidden w-full">
       {/* Central Social Feed */}
-      <div className="flex-1 max-w-xl mx-auto space-y-4">
+      <div className="flex-1 max-w-xl mx-auto space-y-4 w-full overflow-x-hidden">
         {/* 1. Stories Carousel (Matching img1) */}
-        <div className="p-3 bg-[#071321]/50 border border-[#171C25] rounded-3xl overflow-hidden">
+        <div className="p-3 bg-[#071321]/50 border-b border-[#171C25] overflow-hidden">
           <div className="flex gap-3 overflow-x-auto no-scrollbar py-1 px-1">
             {stories.map((story, idx) => (
               <div 
@@ -119,7 +119,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
                       alt={story.username} 
                       loading={idx < 6 ? 'eager' : 'lazy'}
                       decoding="async"
-                      className="w-14 h-14 rounded-full object-cover" 
+                      className="w-16 h-16 rounded-full object-cover" 
                     />
                   </div>
 
@@ -129,7 +129,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
                     </div>
                   )}
                 </div>
-                <span className="text-[11px] text-[#CBD5E1] truncate max-w-[64px] text-center font-medium">
+                <span className="text-[11px] text-[#CBD5E1] truncate max-w-[68px] text-center font-medium">
                   {story.username}
                 </span>
               </div>
@@ -137,14 +137,14 @@ export const FeedView: React.FC<FeedViewProps> = ({
           </div>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto no-scrollbar py-1">
+        <div className="flex gap-2 overflow-x-auto no-scrollbar py-1 px-3 -mx-3">
           {modalities.map((m) => {
             const isSelected = filterModality === m;
             return (
               <button
                 key={m}
                 onClick={() => setFilterModality(m)}
-                className={`min-h-[34px] px-3.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
+                className={`min-h-[34px] px-3.5 rounded-full text-xs font-bold whitespace-nowrap transition-all shrink-0 ${
                   isSelected
                     ? 'bg-[#F20D18] text-white shadow-md shadow-[#F20D18]/25'
                     : 'bg-[#0D121C] border border-[#171C25] text-[#94A3B8] hover:text-white'

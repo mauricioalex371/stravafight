@@ -113,12 +113,17 @@ export default function App() {
     setAppState('auth');
   };
 
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+
   const handleLogin = () => {
     // Simulate login - in real app would authenticate
     setAppState('main');
   };
 
-  const handleGoToSignup = () => {
+  const handleGoToSignup = (email: string, password: string) => {
+    setAuthEmail(email);
+    setAuthPassword(password);
     setAppState('signup');
   };
 
@@ -933,6 +938,8 @@ export default function App() {
   if (appState === 'signup') {
     return (
       <SignupFlow
+        email={authEmail}
+        password={authPassword}
         onComplete={handleSignupComplete}
         onBack={handleBackFromSignup}
       />

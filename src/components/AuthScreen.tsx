@@ -4,7 +4,7 @@ import { Analytics } from '../utils/analytics';
 
 interface AuthScreenProps {
   onLogin: () => void;
-  onSignup: () => void;
+  onSignup: (email: string, password: string) => void;
 }
 
 export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onSignup }) => {
@@ -30,7 +30,16 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onSignup }) => 
       Analytics.trackLogin('email');
       onLogin();
     } else if (mode === 'signup') {
-      onSignup();
+      if (formData.password !== formData.confirmPassword) {
+        alert('As senhas não coincidem!');
+        return;
+      }
+      if (formData.password.length < 6) {
+        alert('A senha deve ter no mínimo 6 caracteres');
+        return;
+      }
+      // Passa email e senha para o SignupFlow
+      onSignup(formData.email, formData.password);
     }
   };
 

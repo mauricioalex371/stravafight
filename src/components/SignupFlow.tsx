@@ -4,8 +4,11 @@ import { UserProfile } from '../types';
 import { generateUUID } from '../utils/formatters';
 import { Analytics } from '../utils/analytics';
 import { StorageService } from '../services/storageService';
+import { AuthService } from '../services/supabase';
 
 interface SignupFlowProps {
+  email: string;
+  password: string;
   onComplete: (user: UserProfile) => void;
   onBack: () => void;
 }
@@ -36,8 +39,9 @@ const BELTS_BY_MODALITY: Record<string, string[]> = {
   'Sambo': ['Iniciante', 'Intermediário', 'Avançado', 'Mestre']
 };
 
-export const SignupFlow: React.FC<SignupFlowProps> = ({ onComplete, onBack }) => {
+export const SignupFlow: React.FC<SignupFlowProps> = ({ email, password, onComplete, onBack }) => {
   const [step, setStep] = useState(1);
+  const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     username: '',
@@ -119,7 +123,7 @@ export const SignupFlow: React.FC<SignupFlowProps> = ({ onComplete, onBack }) =>
     }
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     // Verify username one more time before creating user
     if (!StorageService.isUsernameAvailable(formData.username)) {
       alert('Este nome de usuário já está em uso. Por favor, escolha outro.');
@@ -127,40 +131,67 @@ export const SignupFlow: React.FC<SignupFlowProps> = ({ onComplete, onBack }) =>
       return;
     }
 
-    const newUser: UserProfile = {
-      id: generateUUID(),
-      username: formData.username || 'novo_usuario',
-      fullName: formData.fullName || 'Novo Usuário',
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
-      coverUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1200&auto=format&fit=crop&q=80',
-      bio: formData.bio || 'Guerreiro(a) do STRAVA FIGHT 🥋🔥',
-      role: 'Atleta',
-      location: formData.location || 'Brasil',
-      modalities: formData.selectedModalities.map(modality => ({
-        modality,
-        belt: formData.modalityBelts[modality] || 'Iniciante'
-      })),
-      affiliatedAcademyName: formData.academyName || '',
-      affiliatedAcademyId: '',
-      isVerified: false,
-      followersCount: 0,
-      followingCount: 0,
-      friendsCount: 0,
-      postsCount: 0,
-      streakDays: 0,
-      totalCheckIns: 0,
-      xpPoints: 0,
-      beltRankSocial: 'Iniciante SF',
-      badges: []
-    };
+    setIsCreatingAccount(true);
 
-    // Save user to all users list
-    StorageService.addUser(newUser);
+    try {
+      // 1. Criar conta no Supabase Auth + Profile
+      const result = await AuthService.signUp({
+        email: email,
+        password: password,
+        fullName: formData.fullName,
+        username: formData.username,
+        role: 'Atleta',
+        modality: formData.selectedModalities[0] || 'Jiu-Jitsu'
+      });
 
-    // Track complete registration
-    Analytics.trackCompleteRegistration('email');
+      if (!result.success) {
+        alert('Erro ao criar conta: ' + result.error);
+        setIsCreatingAccount(false);
+        return;
+      }
 
-    onComplete(newUser);
+      // 2. Criar perfil completo
+      const newUser: UserProfile = {
+        id: result.data.user.id, // ID do Supabase Auth
+        username: formData.username,
+        fullName: formData.fullName,
+        avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
+        coverUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1200&auto=format&fit=crop&q=80',
+        bio: formData.bio || 'Guerreiro(a) do STRAVA FIGHT 🥋🔥',
+        role: 'Atleta',
+        location: formData.location || 'Brasil',
+        modalities: formData.selectedModalities.map(modality => ({
+          modality,
+          belt: formData.modalityBelts[modality] || 'Iniciante'
+        })),
+        affiliatedAcademyName: formData.academyName || '',
+        affiliatedAcademyId: '',
+        isVerified: false,
+        followersCount: 0,
+        followingCount: 0,
+        friendsCount: 0,
+        postsCount: 0,
+        streakDays: 0,
+        totalCheckIns: 0,
+        xpPoints: 0,
+        beltRankSocial: 'Iniciante SF',
+        badges: []
+      };
+
+      // 3. Salvar também no localStorage (cache local)
+      StorageService.saveCurrentUser(newUser);
+      StorageService.addUser(newUser);
+
+      // 4. Track complete registration
+      Analytics.trackCompleteRegistration('email');
+
+      setIsCreatingAccount(false);
+      onComplete(newUser);
+    } catch (error: any) {
+      console.error('Erro ao criar conta:', error);
+      alert('Erro inesperado ao criar conta. Tente novamente.');
+      setIsCreatingAccount(false);
+    }
   };
 
   const toggleModality = (modality: string) => {

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { User, MapPin, Trophy, GraduationCap, Building2, Check, ArrowLeft, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { User, MapPin, Trophy, GraduationCap, Building2, Check, ArrowLeft, ArrowRight, AlertCircle, CheckCircle } from 'lucide-react';
 import { UserProfile } from '../types';
 import { generateUUID } from '../utils/formatters';
 import { Analytics } from '../utils/analytics';
+import { StorageService } from '../services/storageService';
 
 interface SignupFlowProps {
   onComplete: (user: UserProfile) => void;
@@ -47,8 +48,60 @@ export const SignupFlow: React.FC<SignupFlowProps> = ({ onComplete, onBack }) =>
     modalityBelts: {} as Record<string, string>
   });
 
+  // Username validation states
+  const [usernameError, setUsernameError] = useState('');
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const [usernameValid, setUsernameValid] = useState(false);
+
   const totalSteps = 4;
   const progress = (step / totalSteps) * 100;
+
+  // Validate username in real-time
+  useEffect(() => {
+    const username = formData.username.trim();
+
+    if (username.length === 0) {
+      setUsernameError('');
+      setUsernameValid(false);
+      return;
+    }
+
+    // Validate format
+    if (username.length < 3) {
+      setUsernameError('Mínimo 3 caracteres');
+      setUsernameValid(false);
+      return;
+    }
+
+    if (username.length > 20) {
+      setUsernameError('Máximo 20 caracteres');
+      setUsernameValid(false);
+      return;
+    }
+
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      setUsernameError('Apenas letras, números e _');
+      setUsernameValid(false);
+      return;
+    }
+
+    // Check if username is available
+    setIsCheckingUsername(true);
+    const timeoutId = setTimeout(() => {
+      const isAvailable = StorageService.isUsernameAvailable(username);
+      
+      if (!isAvailable) {
+        setUsernameError('Este @ já está em uso');
+        setUsernameValid(false);
+      } else {
+        setUsernameError('');
+        setUsernameValid(true);
+      }
+      setIsCheckingUsername(false);
+    }, 500); // Debounce 500ms
+
+    return () => clearTimeout(timeoutId);
+  }, [formData.username]);
 
   const handleNext = () => {
     if (step < totalSteps) {
@@ -67,6 +120,13 @@ export const SignupFlow: React.FC<SignupFlowProps> = ({ onComplete, onBack }) =>
   };
 
   const handleComplete = () => {
+    // Verify username one more time before creating user
+    if (!StorageService.isUsernameAvailable(formData.username)) {
+      alert('Este nome de usuário já está em uso. Por favor, escolha outro.');
+      setStep(1);
+      return;
+    }
+
     const newUser: UserProfile = {
       id: generateUUID(),
       username: formData.username || 'novo_usuario',
@@ -94,6 +154,9 @@ export const SignupFlow: React.FC<SignupFlowProps> = ({ onComplete, onBack }) =>
       badges: []
     };
 
+    // Save user to all users list
+    StorageService.addUser(newUser);
+
     // Track complete registration
     Analytics.trackCompleteRegistration('email');
 
@@ -117,7 +180,10 @@ export const SignupFlow: React.FC<SignupFlowProps> = ({ onComplete, onBack }) =>
   const canProceed = () => {
     switch (step) {
       case 1:
-        return formData.fullName.trim().length > 0 && formData.username.trim().length > 0;
+        return formData.fullName.trim().length > 0 && 
+               formData.username.trim().length >= 3 && 
+               usernameValid && 
+               !isCheckingUsername;
       case 2:
         return formData.location.trim().length > 0;
       case 3:
@@ -189,9 +255,47 @@ export const SignupFlow: React.FC<SignupFlowProps> = ({ onComplete, onBack }) =>
                       value={formData.username}
                       onChange={(e) => setFormData({ ...formData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') })}
                       placeholder="nomedeusuario"
-                      className="w-full h-14 pl-8 pr-4 bg-[#0D121C] border border-[#1F2937] rounded-xl text-white placeholder:text-[#475569] focus:border-[#F20D18] focus:ring-2 focus:ring-[#F20D18]/20 outline-none transition-all"
+                      className={`w-full h-14 pl-8 pr-12 bg-[#0D121C] border rounded-xl text-white placeholder:text-[#475569] focus:ring-2 outline-none transition-all ${
+                        formData.username.length === 0 
+                          ? 'border-[#1F2937] focus:border-[#F20D18] focus:ring-[#F20D18]/20' 
+                          : usernameError 
+                            ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' 
+                            : usernameValid 
+                              ? 'border-green-500 focus:border-green-500 focus:ring-green-500/20' 
+                              : 'border-[#1F2937] focus:border-[#F20D18] focus:ring-[#F20D18]/20'
+                      }`}
                     />
+                    {/* Validation icon */}
+                    {formData.username.length > 0 && (
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                        {isCheckingUsername ? (
+                          <div className="w-5 h-5 border-2 border-[#64748B] border-t-transparent rounded-full animate-spin" />
+                        ) : usernameError ? (
+                          <AlertCircle className="w-5 h-5 text-red-500" />
+                        ) : usernameValid ? (
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                        ) : null}
+                      </div>
+                    )}
                   </div>
+                  {/* Error/Success message */}
+                  {formData.username.length > 0 && (
+                    <div className="mt-2">
+                      {usernameError ? (
+                        <p className="text-xs text-red-500 flex items-center gap-1">
+                          <AlertCircle className="w-3.5 h-3.5" />
+                          {usernameError}
+                        </p>
+                      ) : usernameValid ? (
+                        <p className="text-xs text-green-500 flex items-center gap-1">
+                          <CheckCircle className="w-3.5 h-3.5" />
+                          @{formData.username} está disponível!
+                        </p>
+                      ) : isCheckingUsername ? (
+                        <p className="text-xs text-[#64748B]">Verificando disponibilidade...</p>
+                      ) : null}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

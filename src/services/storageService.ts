@@ -247,6 +247,29 @@ export class StorageService {
     setCached(STORAGE_KEYS.CURRENT_USER, user);
   }
 
+  static getAllUsers(): UserProfile[] {
+    return getCached(STORAGE_KEYS.ALL_USERS, []);
+  }
+
+  static saveAllUsers(users: UserProfile[]): void {
+    setCached(STORAGE_KEYS.ALL_USERS, users);
+  }
+
+  static isUsernameAvailable(username: string, excludeId?: string): boolean {
+    const allUsers = this.getAllUsers();
+    const normalizedUsername = username.toLowerCase().trim();
+    
+    return !allUsers.some(user => 
+      user.username.toLowerCase() === normalizedUsername && user.id !== excludeId
+    );
+  }
+
+  static addUser(user: UserProfile): void {
+    const allUsers = this.getAllUsers();
+    allUsers.push(user);
+    this.saveAllUsers(allUsers);
+  }
+
   static getPosts(): Post[] {
     return getCached(STORAGE_KEYS.POSTS, DEFAULT_POSTS);
   }

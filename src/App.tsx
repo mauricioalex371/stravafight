@@ -25,6 +25,10 @@ import {
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
 import { BottomNav } from './components/BottomNav';
+import { SplashScreen } from './components/SplashScreen';
+import { OnboardingScreen } from './components/OnboardingScreen';
+import { AuthScreen } from './components/AuthScreen';
+import { SignupFlow } from './components/SignupFlow';
 
 // Immediate primary view
 import { FeedView } from './views/FeedView';
@@ -63,13 +67,20 @@ const ViewLoadingFallback = () => (
 
 
 export default function App() {
+  // App State Flow
+  const [appState, setAppState] = useState<'splash' | 'onboarding' | 'auth' | 'signup' | 'main'>('splash');
+  const [isFirstTime, setIsFirstTime] = useState(() => {
+    const hasSeenOnboarding = localStorage.getItem('sf_seen_onboarding');
+    const hasAccount = localStorage.getItem('sf_current_user');
+    return !hasSeenOnboarding && !hasAccount;
+  });
+
   const [currentView, setCurrentView] = useState<string>('feed');
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     const saved = localStorage.getItem('sf-theme');
     return (saved === 'light' || saved === 'dark') ? saved : 'dark';
   });
 
-  // Domain State
   const [currentUser, setCurrentUser] = useState<UserProfile>(StorageService.getCurrentUser());
   const [posts, setPosts] = useState<Post[]>(StorageService.getPosts());
   const [stories, setStories] = useState<Story[]>(StorageService.getStories());
@@ -82,6 +93,44 @@ export default function App() {
   const [achievements, setAchievements] = useState<AchievementBadge[]>(StorageService.getAchievements());
   const [events, setEvents] = useState<CombatEvent[]>(StorageService.getEvents());
   const [challenges, setChallenges] = useState<CombatChallenge[]>(StorageService.getChallenges());
+
+  // Handlers for App Flow
+  const handleSplashComplete = () => {
+    if (isFirstTime) {
+      setAppState('onboarding');
+    } else {
+      const hasAccount = localStorage.getItem('sf_current_user');
+      if (hasAccount) {
+        setAppState('main');
+      } else {
+        setAppState('auth');
+      }
+    }
+  };
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem('sf_seen_onboarding', 'true');
+    setAppState('auth');
+  };
+
+  const handleLogin = () => {
+    // Simulate login - in real app would authenticate
+    setAppState('main');
+  };
+
+  const handleGoToSignup = () => {
+    setAppState('signup');
+  };
+
+  const handleSignupComplete = (newUser: UserProfile) => {
+    setCurrentUser(newUser);
+    StorageService.saveCurrentUser(newUser);
+    setAppState('main');
+  };
+
+  const handleBackFromSignup = () => {
+    setAppState('auth');
+  };
 
   // SF Academy State (Preserving and expanding UBF Team)
   const [academyInfo, setAcademyInfo] = useState<AcademyInfo>(StorageService.getAcademyInfo());
@@ -863,6 +912,34 @@ export default function App() {
   const unreadMessagesCount = conversations.reduce((acc, c) => acc + c.unreadCount, 0);
   const unreadNotificationsCount = notifications.filter((n) => !n.isRead).length;
 
+  // Render App State Flow
+  if (appState === 'splash') {
+    return <SplashScreen onComplete={handleSplashComplete} />;
+  }
+
+  if (appState === 'onboarding') {
+    return <OnboardingScreen onComplete={handleOnboardingComplete} />;
+  }
+
+  if (appState === 'auth') {
+    return (
+      <AuthScreen
+        onLogin={handleLogin}
+        onSignup={handleGoToSignup}
+      />
+    );
+  }
+
+  if (appState === 'signup') {
+    return (
+      <SignupFlow
+        onComplete={handleSignupComplete}
+        onBack={handleBackFromSignup}
+      />
+    );
+  }
+
+  // Main App
   return (
     <div className="min-h-screen bg-[#05070B] text-white flex flex-col font-sans selection:bg-[#F20D18] selection:text-white overflow-x-hidden w-full max-w-full dark:bg-[#05070B] dark:text-white light:bg-gray-50 light:text-gray-900">
       {/* Top Navbar */}

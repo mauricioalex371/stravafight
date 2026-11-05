@@ -18,6 +18,7 @@ import {
 interface AppConfig {
   // Onboarding / Splash
   splashVideoUrl: string;
+  splashVideoUrlMobile?: string; // Opcional: vídeo separado para mobile
   
   // Auth Screen
   authLogo: string;
@@ -40,7 +41,8 @@ interface AppConfig {
 }
 
 const DEFAULT_CONFIG: AppConfig = {
-  splashVideoUrl: '/assets/aistudio/stravafight.mp4',
+  splashVideoUrl: 'https://res.cloudinary.com/wvucafte/video/upload/v1793891402/Strava_Fight_app_splash_screen_7ee78a25.mp4',
+  splashVideoUrlMobile: 'https://res.cloudinary.com/wvucafte/video/upload/v1793890648/gemini_generated_video_73b77deb.mp4',
   authLogo: '/assets/aistudio/LOGO_47d32ee0.jpg',
   authBackground: 'gradient-to-br from-[#05070B] via-[#0D121C] to-[#1F2937]',
   authTagline: 'Esforço que transforma. Luta que evolui.',
@@ -111,10 +113,16 @@ export const AdminPanel: React.FC = () => {
     setIsSaving(true);
     localStorage.setItem('sf_admin_config', JSON.stringify(config));
     
+    // Disparar evento para atualizar componentes
+    window.dispatchEvent(new Event('storage'));
+    
     setTimeout(() => {
       setIsSaving(false);
       setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 2000);
+      setTimeout(() => setSaveSuccess(false), 3000);
+      
+      // Mostrar mensagem de sucesso
+      alert('✅ Alterações salvas com sucesso!\n\nAs mudanças serão aplicadas na próxima vez que os componentes forem carregados.');
     }, 1000);
   };
 
@@ -355,22 +363,37 @@ const SplashEditor: React.FC<{
       <p className="text-sm text-[#94A3B8]">Vídeo exibido na primeira abertura do app</p>
     </div>
 
-    <div className="bg-[#0D121C] border border-[#1F2937] rounded-2xl p-6 space-y-4">
+    <div className="bg-[#0D121C] border border-[#1F2937] rounded-2xl p-6 space-y-6">
       <div>
-        <label className="text-sm font-bold text-[#CBD5E1] mb-2 block">URL do Vídeo</label>
+        <label className="text-sm font-bold text-[#CBD5E1] mb-2 block">URL do Vídeo Desktop (16:9)</label>
         <input
           type="text"
           value={config.splashVideoUrl}
           onChange={(e) => setConfig({ ...config, splashVideoUrl: e.target.value })}
           className="w-full h-12 px-4 bg-[#1F2937] border border-[#374151] rounded-xl text-white outline-none focus:border-[#F20D18]"
-          placeholder="/assets/video.mp4"
+          placeholder="https://res.cloudinary.com/..."
         />
         <p className="text-xs text-[#64748B] mt-2">
-          Cole a URL do vídeo hospedado no Supabase Storage ou external CDN
+          URL do vídeo horizontal (formato landscape) para desktop
+        </p>
+      </div>
+
+      <div>
+        <label className="text-sm font-bold text-[#CBD5E1] mb-2 block">URL do Vídeo Mobile (9:16) - Opcional</label>
+        <input
+          type="text"
+          value={config.splashVideoUrlMobile || ''}
+          onChange={(e) => setConfig({ ...config, splashVideoUrlMobile: e.target.value })}
+          className="w-full h-12 px-4 bg-[#1F2937] border border-[#374151] rounded-xl text-white outline-none focus:border-[#F20D18]"
+          placeholder="https://res.cloudinary.com/..."
+        />
+        <p className="text-xs text-[#64748B] mt-2">
+          URL do vídeo vertical (formato portrait) para mobile. Se vazio, usa o desktop.
         </p>
       </div>
 
       <div className="p-4 bg-[#1F2937] rounded-xl">
+        <p className="text-xs text-[#94A3B8] mb-3">Preview Desktop:</p>
         <video 
           src={config.splashVideoUrl} 
           className="w-full rounded-lg"
@@ -380,6 +403,20 @@ const SplashEditor: React.FC<{
           }}
         />
       </div>
+
+      {config.splashVideoUrlMobile && (
+        <div className="p-4 bg-[#1F2937] rounded-xl">
+          <p className="text-xs text-[#94A3B8] mb-3">Preview Mobile:</p>
+          <video 
+            src={config.splashVideoUrlMobile} 
+            className="max-w-xs mx-auto rounded-lg"
+            controls
+            onError={(e) => {
+              e.currentTarget.poster = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>';
+            }}
+          />
+        </div>
+      )}
     </div>
   </div>
 );

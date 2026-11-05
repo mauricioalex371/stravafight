@@ -18,6 +18,36 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onSignup }) => 
     confirmPassword: ''
   });
 
+  // Carregar configuração do Admin Panel
+  const getConfig = () => {
+    const savedConfig = localStorage.getItem('sf_admin_config');
+    if (savedConfig) {
+      try {
+        return JSON.parse(savedConfig);
+      } catch (e) {
+        console.error('Erro ao carregar config:', e);
+      }
+    }
+    return {
+      authLogo: '/assets/aistudio/LOGO_47d32ee0.jpg',
+      authTagline: 'Esforço que transforma. Luta que evolui.',
+      authSubtitle: 'A rede social das artes marciais',
+      authButtonColor: '#F20D18'
+    };
+  };
+
+  const [config, setConfig] = useState(getConfig());
+
+  // Atualizar config quando mudar
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setConfig(getConfig());
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -66,10 +96,13 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onSignup }) => 
           {/* Logo STRAVA FIGHT Oficial */}
           <div className="mb-12 animate-in zoom-in fade-in duration-700">
             <div className="relative">
-              <div className="absolute inset-0 blur-3xl bg-[#F20D18] opacity-20 animate-pulse" />
+              <div 
+                className="absolute inset-0 blur-3xl opacity-20 animate-pulse" 
+                style={{ backgroundColor: config.authButtonColor }}
+              />
               <div className="relative">
                 <img 
-                  src="/assets/aistudio/LOGO_47d32ee0.jpg" 
+                  src={config.authLogo} 
                   alt="STRAVA FIGHT" 
                   className="w-64 h-auto drop-shadow-2xl"
                   onError={(e) => {
@@ -82,7 +115,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onSignup }) => 
                 <div className="hidden flex-col items-center gap-3">
                   <div className="flex items-center gap-2 text-4xl font-black tracking-wider">
                     <span className="text-white">STRAVA</span>
-                    <span className="text-[#F20D18]">FIGHT</span>
+                    <span style={{ color: config.authButtonColor }}>FIGHT</span>
                   </div>
                 </div>
               </div>
@@ -93,11 +126,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onSignup }) => 
           <div className="text-center mb-16 animate-in slide-in-from-bottom-4 fade-in duration-700 delay-100">
             <div className="flex flex-col items-center gap-3">
               <p className="text-white text-xl font-black tracking-wide">
-                Esforço que transforma. Luta que evolui.
+                {config.authTagline}
               </p>
               <div className="flex items-center gap-2 text-[#94A3B8] text-sm font-semibold">
                 <span className="text-xl">🥋</span>
-                <span>A rede social das artes marciais</span>
+                <span>{config.authSubtitle}</span>
               </div>
             </div>
           </div>
@@ -106,7 +139,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onSignup }) => 
           <div className="w-full space-y-4 animate-in slide-in-from-bottom-4 fade-in duration-700 delay-200">
             <button
               onClick={() => setMode('signup')}
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#F20D18] to-[#FF4A0F] text-white font-black text-base shadow-lg shadow-[#F20D18]/30 active:scale-95 transition-transform"
+              className="w-full py-4 rounded-2xl text-white font-black text-base shadow-lg active:scale-95 transition-transform"
+              style={{ 
+                background: `linear-gradient(to right, ${config.authButtonColor}, ${config.authButtonColor}dd)`,
+                boxShadow: `0 10px 40px -10px ${config.authButtonColor}40`
+              }}
             >
               Criar Conta
             </button>
@@ -124,9 +161,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onSignup }) => 
         <div className="relative z-10 text-center text-[#64748B] text-xs">
           <p>Ao continuar, você concorda com nossos</p>
           <p className="mt-1">
-            <button className="text-[#F20D18] font-semibold">Termos de Uso</button>
+            <button className="font-semibold" style={{ color: config.authButtonColor }}>Termos de Uso</button>
             {' e '}
-            <button className="text-[#F20D18] font-semibold">Política de Privacidade</button>
+            <button className="font-semibold" style={{ color: config.authButtonColor }}>Política de Privacidade</button>
           </p>
         </div>
       </div>

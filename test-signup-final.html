@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Teste Final - Cadastro STRAVA FIGHT</title>
+  <meta charset="UTF-8">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: Arial; padding: 40px; background: #111; color: white; }
+    button { padding: 15px 30px; font-size: 16px; background: #F20D18; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    button:hover { background: #d00a14; }
+    #result { margin-top: 20px; padding: 20px; background: #222; border-radius: 8px; }
+    .success { color: #0f0; }
+    .error { color: #f00; }
+  </style>
+</head>
+<body>
+  <h1>🔥 Teste Final - Cadastro STRAVA FIGHT</h1>
+  <p>Clique no botão para testar o cadastro:</p>
+  <button onclick="testarCadastro()">TESTAR CADASTRO</button>
+  <div id="result"></div>
+
+  <script>
+    const SUPABASE_URL = 'https://olwwkgtxkduvyhduudbx.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9sd3drZ3R4a2R1dnloZHV1ZGJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM3MjEwMzAsImV4cCI6MjEwOTI5NzAzMH0.-GCwcw1yLPrd5zI6qse0iu9nc-4WaSpWPW2NUtIAdY0';
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function testarCadastro() {
+      const result = document.getElementById('result');
+      const email = 'teste_' + Date.now() + '@gmail.com';
+      const senha = 'SenhaForte123!@#';
+      
+      result.innerHTML = '<p>⏳ Testando cadastro...</p><p>Email: ' + email + '</p>';
+
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email: email,
+          password: senha,
+          options: {
+            data: {
+              full_name: 'Usuário Teste',
+              username: 'teste_' + Date.now()
+            }
+          }
+        });
+
+        if (error) {
+          result.innerHTML = '<p class="error">❌ ERRO: ' + error.message + '</p>' +
+                            '<p>Código: ' + (error.code || 'N/A') + '</p>' +
+                            '<pre>' + JSON.stringify(error, null, 2) + '</pre>';
+        } else {
+          result.innerHTML = '<p class="success">✅ SUCESSO! Cadastro funcionando!</p>' +
+                            '<p>User ID: ' + (data.user?.id || 'N/A') + '</p>' +
+                            '<p>Email: ' + (data.user?.email || 'N/A') + '</p>' +
+                            '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        }
+      } catch (err) {
+        result.innerHTML = '<p class="error">❌ EXCEÇÃO: ' + err.message + '</p>' +
+                          '<pre>' + err.stack + '</pre>';
+      }
+    }
+  </script>
+</body>
+</html>

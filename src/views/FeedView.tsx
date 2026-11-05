@@ -165,7 +165,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
             return (
               <React.Fragment key={post.id}>
                 <article 
-                  className="bg-[#071321]/60 border border-[#171C25] rounded-3xl overflow-hidden shadow-sm hover:border-[#F20D18]/30 transition-all"
+                  className="bg-[#05070B] border-b border-[#1F2937]"
                 >
               {/* Post Header */}
               <div className="p-3.5 flex items-center justify-between">
@@ -247,7 +247,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
               {/* Post Media (Photo / Video) */}
               <div 
                 onDoubleClick={() => onToggleLike(post.id)}
-                className="relative bg-black aspect-square sm:aspect-[4/3] flex items-center justify-center overflow-hidden cursor-pointer"
+                className="relative bg-black w-full aspect-square flex items-center justify-center overflow-hidden cursor-pointer"
               >
                 <img 
                   src={post.mediaUrl} 
@@ -255,7 +255,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
                   loading={postIdx === 0 ? 'eager' : 'lazy'}
                   decoding="async"
                   fetchPriority={postIdx === 0 ? 'high' : 'auto'}
-                  className="w-full h-full object-cover hover:scale-101 transition-transform duration-300" 
+                  className="w-full h-full object-cover" 
                 />
 
 

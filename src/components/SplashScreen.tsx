@@ -8,7 +8,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Carregamento de 7 segundos (70ms por 1%)
+    // Carregamento de 9 segundos (90ms por 1%)
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
@@ -18,7 +18,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
         }
         return prev + 1;
       });
-    }, 70); // 7000ms total
+    }, 90); // 9000ms total
 
     return () => clearInterval(interval);
   }, [onComplete]);

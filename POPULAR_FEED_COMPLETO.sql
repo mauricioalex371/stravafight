@@ -1,7 +1,26 @@
 -- ==============================================================================
 -- POPULAR FEED E REELS - STRAVA FIGHT
 -- Execute no Supabase SQL Editor
+-- IMPORTANTE: Use o ID de um usuário existente ou cadastre-se primeiro!
 -- ==============================================================================
+
+-- ==============================================================================
+-- OPÇÃO 1: Se você JÁ tem uma conta, pule para OPÇÃO 2
+-- ==============================================================================
+
+-- Para criar posts, você precisa de um usuário no auth.users
+-- A maneira mais fácil é:
+-- 1. Cadastrar-se em https://stravafight.vercel.app/
+-- 2. Voltar aqui e executar OPÇÃO 2
+
+-- ==============================================================================
+-- OPÇÃO 2: POSTS USANDO SEU USUÁRIO EXISTENTE
+-- ==============================================================================
+
+-- Primeiro, vamos ver qual é o seu ID:
+-- SELECT id, username FROM profiles LIMIT 1;
+
+-- Depois, execute os INSERTs abaixo (vai usar o primeiro usuário que encontrar)
 
 -- ==============================================================================
 -- POSTS PARA O FEED (10 posts variados)
@@ -10,7 +29,7 @@
 -- Post 1: Treino de Jiu-Jitsu
 INSERT INTO posts (author_id, caption, media_url, media_type, modality, hashtags, likes_count, comments_count, created_at)
 VALUES (
-  (SELECT id FROM profiles WHERE username = 'alexlima' LIMIT 1),
+  (SELECT id FROM profiles ORDER BY created_at DESC LIMIT 1),
   '🥋 Treino intenso de Jiu-Jitsu hoje! Focando em transições de guarda e finalizações. A evolução é constante, cada dia um aprendizado novo. OSS! 💪 #JiuJitsu #BJJ #Treino #OSS',
   'https://images.unsplash.com/photo-1555597673-b21d5c935865?w=800&q=80',
   'image',
@@ -24,7 +43,7 @@ VALUES (
 -- Post 2: Sparring de Muay Thai
 INSERT INTO posts (author_id, caption, media_url, media_type, modality, hashtags, likes_count, comments_count, created_at)
 VALUES (
-  (SELECT id FROM profiles WHERE username = 'alexlima' LIMIT 1),
+  (SELECT id FROM profiles ORDER BY created_at DESC LIMIT 1),
   '💥 Sparring de Muay Thai foi INSANO hoje! Trabalhando chutes, joelhadas e clinch. Quanto mais treina, mais percebe que tem que aprender. Foco total! 🔥 #MuayThai #Treino #Sparring',
   'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=800&q=80',
   'image',
@@ -38,7 +57,7 @@ VALUES (
 -- Post 3: Finalização perfeita
 INSERT INTO posts (author_id, caption, media_url, media_type, modality, hashtags, likes_count, comments_count, created_at)
 VALUES (
-  (SELECT id FROM profiles WHERE username = 'alexlima' LIMIT 1),
+  (SELECT id FROM profiles ORDER BY created_at DESC LIMIT 1),
   '🔺 Finalização perfeita no treino! Triângulo é minha queda favorita, essa pegou certinho. Técnica + timing = sucesso 🎯 #BJJ #Submissions #Triangle',
   'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&q=80',
   'image',
@@ -52,7 +71,7 @@ VALUES (
 -- Post 4: Combos no saco
 INSERT INTO posts (author_id, caption, media_url, media_type, modality, hashtags, likes_count, comments_count, created_at)
 VALUES (
-  (SELECT id FROM profiles WHERE username = 'alexlima' LIMIT 1),
+  (SELECT id FROM profiles ORDER BY created_at DESC LIMIT 1),
   '🥊 Combinações de socos no saco pesado! Jab, cruzado, gancho... velocidade e potência precisam andar juntas. Treino de striking é fundamental! ⚡ #Boxing #Striking #Power',
   'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=800&q=80',
   'image',
@@ -66,7 +85,7 @@ VALUES (
 -- Post 5: Queda dupla
 INSERT INTO posts (author_id, caption, media_url, media_type, modality, hashtags, likes_count, comments_count, created_at)
 VALUES (
-  (SELECT id FROM profiles WHERE username = 'alexlima' LIMIT 1),
+  (SELECT id FROM profiles ORDER BY created_at DESC LIMIT 1),
   '🤼 Queda dupla no treino de wrestling! Base sólida é essencial para o Jiu-Jitsu. Quem domina as quedas, domina a luta. 💯 #Wrestling #Grappling #Takedown',
   'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&q=80',
   'image',
@@ -80,7 +99,7 @@ VALUES (
 -- Post 6: Evolução constante
 INSERT INTO posts (author_id, caption, media_url, media_type, modality, hashtags, likes_count, comments_count, created_at)
 VALUES (
-  (SELECT id FROM profiles WHERE username = 'alexlima' LIMIT 1),
+  (SELECT id FROM profiles ORDER BY created_at DESC LIMIT 1),
   '🔵 Evolução constante! Faixa branca hoje, mas trabalhando todo dia para evoluir. Cada treino é um aprendizado, cada rola uma lição. A jornada é longa mas vale muito! OSS! 🙏 #JiuJitsu #Evolução #NeverGiveUp',
   'https://images.unsplash.com/photo-1555597673-b21d5c935865?w=800&q=80',
   'image',
@@ -94,7 +113,7 @@ VALUES (
 -- Post 7: Low kick
 INSERT INTO posts (author_id, caption, media_url, media_type, modality, hashtags, likes_count, comments_count, created_at)
 VALUES (
-  (SELECT id FROM profiles WHERE username = 'alexlima' LIMIT 1),
+  (SELECT id FROM profiles ORDER BY created_at DESC LIMIT 1),
   '🦶 Low kick certeiro! Treino de Muay Thai foi demais hoje, professor mandou 100 chutes na perna. Amanhã vai doer mas vale a pena! 😅💪 #MuayThai #LowKick #ThaiBoxing',
   'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=800&q=80',
   'image',
@@ -108,7 +127,7 @@ VALUES (
 -- Post 8: Raspagem da guarda
 INSERT INTO posts (author_id, caption, media_url, media_type, modality, hashtags, likes_count, comments_count, created_at)
 VALUES (
-  (SELECT id FROM profiles WHERE username = 'alexlima' LIMIT 1),
+  (SELECT id FROM profiles ORDER BY created_at DESC LIMIT 1),
   '🥋 Raspagem perfeita da meia-guarda! Técnica limpa que aprendi hoje no treino. Guardeiro sempre acha um jeito! 🔄 #BJJ #Technique #HalfGuard',
   'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&q=80',
   'image',
@@ -122,7 +141,7 @@ VALUES (
 -- Post 9: Força e técnica
 INSERT INTO posts (author_id, caption, media_url, media_type, modality, hashtags, likes_count, comments_count, created_at)
 VALUES (
-  (SELECT id FROM profiles WHERE username = 'alexlima' LIMIT 1),
+  (SELECT id FROM profiles ORDER BY created_at DESC LIMIT 1),
   '💪 Força e técnica andam juntas! Treino pesado hoje, mas sempre respeitando a técnica. Não adianta força bruta sem fundamento. Evolução é o caminho! 📈 #Treino #Force #BJJ',
   'https://images.unsplash.com/photo-1555597673-b21d5c935865?w=800&q=80',
   'image',
@@ -136,7 +155,7 @@ VALUES (
 -- Post 10: Sequência completa
 INSERT INTO posts (author_id, caption, media_url, media_type, modality, hashtags, likes_count, comments_count, created_at)
 VALUES (
-  (SELECT id FROM profiles WHERE username = 'alexlima' LIMIT 1),
+  (SELECT id FROM profiles ORDER BY created_at DESC LIMIT 1),
   '🔥 Sequência de socos, chutes e joelhadas! Treino completo de MMA style. Misturando tudo que aprendi no Jiu-Jitsu e Muay Thai. É isso que faz a diferença! 🥊🥋 #MMA #Training #Complete',
   'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=800&q=80',
   'image',
@@ -154,7 +173,7 @@ VALUES (
 -- Reel 1: Combo devastador
 INSERT INTO reels (author_id, caption, video_url, hashtags, likes_count, comments_count, shares_count, created_at)
 VALUES (
-  (SELECT id FROM profiles WHERE username = 'alexlima' LIMIT 1),
+  (SELECT id FROM profiles ORDER BY created_at DESC LIMIT 1),
   '🥊 Combo devastador! Jab + cruzado + gancho + low kick. Treino de striking pesado! Quem aguenta? 💥 #MMA #Combo #Striking',
   'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&q=80',
   ARRAY['mma', 'combo', 'striking', 'knockout', 'boxing'],
@@ -167,7 +186,7 @@ VALUES (
 -- Reel 2: Triângulo voador
 INSERT INTO reels (author_id, caption, video_url, hashtags, likes_count, comments_count, shares_count, created_at)
 VALUES (
-  (SELECT id FROM profiles WHERE username = 'alexlima' LIMIT 1),
+  (SELECT id FROM profiles ORDER BY created_at DESC LIMIT 1),
   '🔺 Triângulo voador! Técnica arriscada mas quando pega... ACABOU! Quem quer tentar? 😎 #BJJ #Flying #Triangle',
   'https://images.unsplash.com/photo-1555597673-b21d5c935865?w=800&q=80',
   ARRAY['bjj', 'flying', 'triangle', 'submission', 'jiujitsu'],
@@ -180,7 +199,7 @@ VALUES (
 -- Reel 3: High kick giratório
 INSERT INTO reels (author_id, caption, video_url, hashtags, likes_count, comments_count, shares_count, created_at)
 VALUES (
-  (SELECT id FROM profiles WHERE username = 'alexlima' LIMIT 1),
+  (SELECT id FROM profiles ORDER BY created_at DESC LIMIT 1),
   '💥 High kick giratório no saco! Velocidade + potência = nocaute! Treino de Muay Thai foi brutal! 🌪️ #MuayThai #HighKick #Power',
   'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=800&q=80',
   ARRAY['muaythai', 'highkick', 'power', 'spinning', 'knockout'],
@@ -193,7 +212,7 @@ VALUES (
 -- Reel 4: Queda + passagem
 INSERT INTO reels (author_id, caption, video_url, hashtags, likes_count, comments_count, shares_count, created_at)
 VALUES (
-  (SELECT id FROM profiles WHERE username = 'alexlima' LIMIT 1),
+  (SELECT id FROM profiles ORDER BY created_at DESC LIMIT 1),
   '🤼 Queda dupla direto pra passagem de guarda! Fluxo perfeito do wrestling pro Jiu-Jitsu. É tudo conectado! 🔄 #Wrestling #BJJ #Flow',
   'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&q=80',
   ARRAY['wrestling', 'bjj', 'flow', 'takedown', 'passagem'],
@@ -206,7 +225,7 @@ VALUES (
 -- Reel 5: Mata-leão relâmpago
 INSERT INTO reels (author_id, caption, video_url, hashtags, likes_count, comments_count, shares_count, created_at)
 VALUES (
-  (SELECT id FROM profiles WHERE username = 'alexlima' LIMIT 1),
+  (SELECT id FROM profiles ORDER BY created_at DESC LIMIT 1),
   '🔥 Finalização relâmpago! Pegou as costas, encaixou o mata-leão e... PAM! Dormiu! A finalização mais clássica do Jiu-Jitsu! 😴 #BJJ #RearNakedChoke #Submission',
   'https://images.unsplash.com/photo-1555597673-b21d5c935865?w=800&q=80',
   ARRAY['bjj', 'choke', 'submission', 'rearnakedchoke', 'finalizacao'],
@@ -222,7 +241,7 @@ VALUES (
 
 UPDATE profiles 
 SET posts_count = (SELECT COUNT(*) FROM posts WHERE author_id = profiles.id)
-WHERE username = 'alexlima';
+WHERE id = (SELECT id FROM profiles ORDER BY created_at DESC LIMIT 1);
 
 -- ==============================================================================
 -- VERIFICAR SE FOI CRIADO
@@ -230,8 +249,8 @@ WHERE username = 'alexlima';
 
 -- Contar posts e reels criados
 SELECT 
-  (SELECT COUNT(*) FROM posts WHERE author_id = (SELECT id FROM profiles WHERE username = 'alexlima' LIMIT 1)) as total_posts,
-  (SELECT COUNT(*) FROM reels WHERE author_id = (SELECT id FROM profiles WHERE username = 'alexlima' LIMIT 1)) as total_reels;
+  (SELECT COUNT(*) FROM posts WHERE author_id = (SELECT id FROM profiles ORDER BY created_at DESC LIMIT 1)) as total_posts,
+  (SELECT COUNT(*) FROM reels WHERE author_id = (SELECT id FROM profiles ORDER BY created_at DESC LIMIT 1)) as total_reels;
 
 -- Ver posts mais recentes
 SELECT 

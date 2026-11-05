@@ -37,19 +37,38 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
         <source src="https://res.cloudinary.com/wvucafte/video/upload/v1793890648/gemini_generated_video_73b77deb.mp4" type="video/mp4" />
       </video>
 
-      {/* Loading Bar Container - Positioned at Bottom */}
-      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 w-64">
-        {/* Loading Bar */}
-        <div className="w-full h-2 bg-white/20 backdrop-blur-sm rounded-full overflow-hidden relative shadow-2xl">
-          <div 
-            className="h-full bg-gradient-to-r from-white via-blue-200 to-white rounded-full transition-all duration-300 ease-out shadow-lg"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-
-        {/* Loading Text */}
-        <div className="mt-4 text-white text-sm font-semibold tracking-wider uppercase text-center drop-shadow-lg">
-          {progress}%
+      {/* Loading Spinner - Positioned at Bottom */}
+      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-3">
+        {/* Circular Spinner */}
+        <div className="relative w-8 h-8">
+          {/* Background Circle */}
+          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 32 32">
+            <circle
+              cx="16"
+              cy="16"
+              r="14"
+              fill="none"
+              stroke="rgba(255, 255, 255, 0.2)"
+              strokeWidth="3"
+            />
+            {/* Progress Circle */}
+            <circle
+              cx="16"
+              cy="16"
+              r="14"
+              fill="none"
+              stroke="white"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeDasharray="87.96"
+              strokeDashoffset={87.96 - (87.96 * progress) / 100}
+              className="transition-all duration-300 ease-out drop-shadow-lg"
+            />
+          </svg>
+          {/* Percentage Text Inside Circle */}
+          <div className="absolute inset-0 flex items-center justify-center text-white text-[10px] font-bold">
+            {progress}
+          </div>
         </div>
       </div>
     </div>

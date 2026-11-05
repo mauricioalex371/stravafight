@@ -44,6 +44,8 @@ export class AuthService {
         email: payload.email,
         password: payload.password,
         options: {
+          // URGENTE: Tentar bypass de confirmação de email
+          emailRedirectTo: `${window.location.origin}/`,
           data: {
             full_name: payload.fullName,
             username: payload.username.toLowerCase().replace(/[^a-z0-9_.]/g, ''),

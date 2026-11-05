@@ -44,7 +44,14 @@ export const supabase: SupabaseClient = createClient(
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
-      storageKey: 'sf_supabase_auth_token'
+      storageKey: 'sf_supabase_auth_token',
+      // URGENTE: Desabilitar confirmação de email no lado do cliente
+      autoConfirm: true
+    },
+    global: {
+      headers: {
+        'x-client-info': 'stravafight-web'
+      }
     }
   }
 );

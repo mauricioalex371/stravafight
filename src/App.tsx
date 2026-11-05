@@ -924,7 +924,12 @@ export default function App() {
   };
 
   const unreadMessagesCount = conversations.reduce((acc, c) => acc + c.unreadCount, 0);
-  const unreadNotificationsCount = notifications.filter((n) => !n.isRead).length;
+  const unreadNotificationsCount = notifications.filter((n) => 
+    n.id && 
+    n.createdAt && 
+    !n.isRead && 
+    n.userId === currentUser.id
+  ).length;
 
   // Render App State Flow
   if (appState === 'splash') {

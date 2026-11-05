@@ -228,7 +228,6 @@ export const SfActivityModal: React.FC<SfActivityModalProps> = ({
       setIsExporting(false);
       return dataUrl;
     } catch (err) {
-      console.error('Error rendering official filter to canvas:', err);
       setIsExporting(false);
       return photoUrl;
     }

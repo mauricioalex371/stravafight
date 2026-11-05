@@ -76,7 +76,6 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
       const url = await SupabaseBridge.uploadMedia(file, 'post-media');
       setMediaUrl(url);
     } catch (err) {
-      console.error(err);
       alert('Falha ao processar arquivo selecionado.');
     } finally {
       setIsUploading(false);

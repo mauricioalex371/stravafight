@@ -51,7 +51,7 @@ const DEFAULT_CONFIG: AppConfig = {
   onboardingSlides: [
     {
       title: 'Registre Seus Treinos',
-      description: 'Check-in diário, SF Activity filter e acompanhe sua evolução no tatame com métricas avançadas.',
+      description: 'Treinos diários com SF Activity e acompanhe sua evolução no tatame.',
       image: 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=800&auto=format&fit=crop&q=80'
     },
     {

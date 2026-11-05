@@ -10,7 +10,7 @@ const slides = [
   {
     icon: Flame,
     title: 'Registre Seus Treinos',
-    description: 'Check-in diário, SF Activity filter e acompanhe sua evolução no tatame com métricas avançadas.',
+    description: 'Treinos diários com SF Activity e acompanhe sua evolução no tatame.',
     gradient: 'from-[#F20D18] to-[#FF4A0F]',
     image: 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=800&auto=format&fit=crop&q=80'
   },

@@ -35,7 +35,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
         const count = await NotificationsService.getUnreadCount(currentUser.id);
         setUnreadCount(count);
       } catch (error) {
-        console.error('Error fetching unread count:', error);
+        // Silent error handling in production
       }
     };
 
@@ -59,49 +59,48 @@ export const BottomNav: React.FC<BottomNavProps> = ({
         {/* 1. Início */}
         <button
           onClick={() => onChangeView('feed')}
-          className={`flex items-center justify-center w-14 h-12 transition-colors ${
-            currentView === 'feed' ? 'text-white' : 'text-[#71717A]'
-          }`}
+          className="flex items-center justify-center min-w-[56px] min-h-[48px] transition-colors touch-manipulation"
+          style={{ WebkitTapHighlightColor: 'transparent' }}
           aria-label="Início"
         >
-          <Home className={`w-6 h-6 ${currentView === 'feed' ? 'fill-white' : ''}`} />
+          <Home className={`w-7 h-7 ${currentView === 'feed' ? 'fill-white' : ''}`} />
         </button>
 
         {/* 2. Explorar */}
         <button
           onClick={() => onChangeView('explore')}
-          className={`flex items-center justify-center w-14 h-12 transition-colors ${
-            currentView === 'explore' ? 'text-white' : 'text-[#71717A]'
-          }`}
+          className="flex items-center justify-center min-w-[56px] min-h-[48px] transition-colors touch-manipulation"
+          style={{ WebkitTapHighlightColor: 'transparent' }}
           aria-label="Explorar"
         >
-          <Search className={`w-6 h-6 ${currentView === 'explore' ? 'stroke-[2.5px]' : ''}`} />
+          <Search className={`w-7 h-7 ${currentView === 'explore' ? 'stroke-[2.5px]' : ''}`} />
         </button>
 
         {/* 3. Criar */}
         <button
           onClick={onOpenCreateMenu}
-          className="flex items-center justify-center w-14 h-12 text-white transition-colors"
+          className="flex items-center justify-center min-w-[56px] min-h-[48px] text-white transition-colors touch-manipulation"
+          style={{ WebkitTapHighlightColor: 'transparent' }}
           aria-label="Criar"
         >
-          <PlusSquare className="w-6 h-6" />
+          <PlusSquare className="w-7 h-7" />
         </button>
 
         {/* 4. Reels */}
         <button
           onClick={() => onChangeView('reels')}
-          className={`flex items-center justify-center w-14 h-12 transition-colors ${
-            currentView === 'reels' ? 'text-white' : 'text-[#71717A]'
-          }`}
+          className="flex items-center justify-center min-w-[56px] min-h-[48px] transition-colors touch-manipulation"
+          style={{ WebkitTapHighlightColor: 'transparent' }}
           aria-label="Reels"
         >
-          <Clapperboard className={`w-6 h-6 ${currentView === 'reels' ? 'fill-white' : ''}`} />
+          <Clapperboard className={`w-7 h-7 ${currentView === 'reels' ? 'fill-white' : ''}`} />
         </button>
 
         {/* 5. Perfil */}
         <button
           onClick={() => onChangeView('profile')}
-          className="flex items-center justify-center w-14 h-12"
+          className="flex items-center justify-center min-w-[56px] min-h-[48px] touch-manipulation"
+          style={{ WebkitTapHighlightColor: 'transparent' }}
           aria-label="Perfil"
         >
           <div className={`w-6 h-6 rounded-full overflow-hidden border-2 ${

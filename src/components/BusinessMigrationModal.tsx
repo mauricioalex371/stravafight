@@ -58,7 +58,6 @@ export const BusinessMigrationModal: React.FC<BusinessMigrationModalProps> = ({
         });
       }
     } catch (err) {
-      console.error('Erro ao detectar dados legados:', err);
       setError(String(err));
       setStep('error');
     } finally {
@@ -81,7 +80,6 @@ export const BusinessMigrationModal: React.FC<BusinessMigrationModalProps> = ({
         setStep('complete');
       }
     } catch (err) {
-      console.error('Erro durante migração:', err);
       setError(String(err));
       setStep('error');
     }
@@ -93,7 +91,6 @@ export const BusinessMigrationModal: React.FC<BusinessMigrationModalProps> = ({
       setStep('detect');
       detectLegacyData();
     } catch (err) {
-      console.error('Erro ao fazer rollback:', err);
       setError(String(err));
     }
   };

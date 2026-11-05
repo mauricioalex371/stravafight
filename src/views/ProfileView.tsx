@@ -74,7 +74,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         const following = await FollowersService.isFollowing(currentUserId, user.id);
         setIsFollowing(following);
       } catch (error) {
-        console.error('Error checking follow status:', error);
+        // Silent in production
       }
     };
 
@@ -99,7 +99,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         await NotificationsService.notifyFollow(user.id, currentUserId);
       }
     } catch (error) {
-      console.error('Error toggling follow:', error);
       // Rollback on error
       setIsFollowing(previousState);
       alert('Erro ao atualizar seguidor. Tente novamente.');
@@ -135,7 +134,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-4 pb-20 md:pb-12 select-none">
+    <div className="max-w-3xl mx-auto space-y-4 pb-20 md:pb-12 select-none overflow-y-auto">
       {/* Profile Header (Matching img5) */}
       <div className="p-4 sm:p-6 bg-[#071321]/60 border border-[#171C25] rounded-3xl shadow-sm">
         <div className="flex items-start justify-between gap-4">

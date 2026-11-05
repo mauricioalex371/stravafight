@@ -25,7 +25,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onSignup }) => 
       try {
         return JSON.parse(savedConfig);
       } catch (e) {
-        console.error('Erro ao carregar config:', e);
+        // Use default config
       }
     }
     return {

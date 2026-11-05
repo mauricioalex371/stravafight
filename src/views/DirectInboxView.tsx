@@ -76,7 +76,7 @@ export const DirectInboxView: React.FC<DirectInboxViewProps> = ({
 
         setConversations(transformed);
       } catch (error) {
-        console.error('Error loading conversations:', error);
+        // Silent error
       } finally {
         setIsLoading(false);
       }
@@ -123,7 +123,7 @@ export const DirectInboxView: React.FC<DirectInboxViewProps> = ({
         // Mark messages as read
         await MessagesService.markConversationAsRead(activeConversationId, currentUser.id);
       } catch (error) {
-        console.error('Error loading messages:', error);
+        // Silent error
       }
     };
 
@@ -185,7 +185,6 @@ export const DirectInboxView: React.FC<DirectInboxViewProps> = ({
 
       setMessages((prev) => [...prev, chatMessage]);
     } catch (error) {
-      console.error('Error sending message:', error);
       alert('Erro ao enviar mensagem. Tente novamente.');
       setInputText(messageText); // Restore text on error
     } finally {

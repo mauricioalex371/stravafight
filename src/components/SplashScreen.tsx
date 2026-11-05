@@ -23,7 +23,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
           ? "https://res.cloudinary.com/wvucafte/video/upload/v1793890648/gemini_generated_video_73b77deb.mp4"
           : "https://res.cloudinary.com/wvucafte/video/upload/v1793891402/Strava_Fight_app_splash_screen_7ee78a25.mp4");
       } catch (e) {
-        console.error('Erro ao carregar config:', e);
+        // Use default config
       }
     }
     

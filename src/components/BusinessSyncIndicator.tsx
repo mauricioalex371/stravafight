@@ -36,7 +36,7 @@ export const BusinessSyncIndicator: React.FC<BusinessSyncIndicatorProps> = ({
     try {
       await BusinessService.syncNow();
     } catch (error) {
-      console.error('Manual sync failed:', error);
+      // Silent sync failure
     } finally {
       setIsManualSyncing(false);
     }

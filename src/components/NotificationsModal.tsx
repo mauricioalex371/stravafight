@@ -48,9 +48,9 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
           targetId: n.target_id
         }));
 
-        setNotifications(transformed);
+      setNotifications(transformed);
       } catch (error) {
-        console.error('Error loading notifications:', error);
+        // Silent error handling
       } finally {
         setIsLoading(false);
       }
@@ -76,7 +76,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
       await NotificationsService.markAllAsRead(currentUserId);
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     } catch (error) {
-      console.error('Error marking all as read:', error);
+      // Silent error handling
     }
   };
 
@@ -90,7 +90,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
       }
       onSelectNotification(notif);
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      // Silent error handling
     }
   };
   const getIcon = (type: NotificationItem['type']) => {

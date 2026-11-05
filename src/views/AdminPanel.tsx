@@ -188,57 +188,57 @@ export const AdminPanel: React.FC = () => {
 
   // Painel Admin
   return (
-    <div className="fixed inset-0 bg-[#05070B] flex flex-col">
-      {/* Header - FIXO NO TOPO */}
-      <div className="flex-none h-20 bg-[#0D121C] border-b border-[#1F2937] flex items-center justify-between px-4 sm:px-6 z-50">
+    <div className="fixed inset-0 bg-[#05070B] flex flex-col overflow-hidden">
+      {/* BOTÃO SALVAR FLUTUANTE - SEMPRE VISÍVEL */}
+      <div className="fixed bottom-6 right-6 z-[9999] flex gap-3">
+        <button
+          onClick={handleSave}
+          disabled={isSaving}
+          className={`flex items-center gap-3 px-6 py-4 rounded-2xl font-black text-base transition-all shadow-2xl ${
+            saveSuccess
+              ? 'bg-green-600 text-white animate-bounce'
+              : isSaving
+              ? 'bg-[#374151] text-[#94A3B8] cursor-wait'
+              : 'bg-gradient-to-r from-[#F20D18] to-[#FF4A0F] text-white hover:scale-105 shadow-[#F20D18]/50'
+          }`}
+        >
+          {saveSuccess ? (
+            <>
+              <Check className="w-6 h-6" />
+              <span>Salvo!</span>
+            </>
+          ) : isSaving ? (
+            <>
+              <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin" />
+              <span>Salvando...</span>
+            </>
+          ) : (
+            <>
+              <Save className="w-6 h-6" />
+              <span>SALVAR</span>
+            </>
+          )}
+        </button>
+
+        <button
+          onClick={handleLogout}
+          className="flex items-center justify-center w-14 h-14 bg-[#1F2937] text-white rounded-2xl hover:bg-[#374151] transition-all shadow-xl"
+          title="Sair"
+        >
+          <LogOut className="w-6 h-6" />
+        </button>
+      </div>
+
+      {/* Header */}
+      <div className="flex-none h-20 bg-[#0D121C] border-b border-[#1F2937] flex items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-gradient-to-br from-[#F20D18] to-[#FF4A0F] rounded-xl flex items-center justify-center">
             <Settings className="w-6 h-6 text-white" />
           </div>
-          <div className="hidden sm:block">
+          <div>
             <h1 className="text-xl font-black text-white">Admin Panel</h1>
             <p className="text-xs text-[#64748B]">Gerenciamento Visual</p>
           </div>
-        </div>
-
-        <div className="flex items-center gap-2 sm:gap-3">
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className={`flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-bold text-sm sm:text-base transition-all shadow-lg ${
-              saveSuccess
-                ? 'bg-green-600 text-white'
-                : isSaving
-                ? 'bg-[#374151] text-[#94A3B8] cursor-wait'
-                : 'bg-[#F20D18] text-white hover:bg-[#d00a14] shadow-[#F20D18]/30'
-            }`}
-          >
-            {saveSuccess ? (
-              <>
-                <Check className="w-5 h-5" />
-                <span className="hidden sm:inline">Salvo!</span>
-                <span className="sm:hidden">✓</span>
-              </>
-            ) : isSaving ? (
-              <>
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span className="hidden sm:inline">Salvando...</span>
-              </>
-            ) : (
-              <>
-                <Save className="w-5 h-5" />
-                <span>Salvar</span>
-              </>
-            )}
-          </button>
-
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-[#1F2937] text-white rounded-xl hover:bg-[#374151] transition-colors"
-          >
-            <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span className="hidden sm:inline">Sair</span>
-          </button>
         </div>
       </div>
 

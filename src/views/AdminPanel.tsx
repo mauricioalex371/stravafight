@@ -188,55 +188,56 @@ export const AdminPanel: React.FC = () => {
 
   // Painel Admin
   return (
-    <div className="fixed inset-0 bg-[#05070B] flex flex-col overflow-hidden">
-      {/* Header */}
-      <div className="h-16 bg-[#0D121C] border-b border-[#1F2937] flex items-center justify-between px-6">
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-gradient-to-br from-[#F20D18] to-[#FF4A0F] rounded-lg flex items-center justify-center">
-            <Settings className="w-5 h-5 text-white" />
+    <div className="fixed inset-0 bg-[#05070B] flex flex-col">
+      {/* Header - FIXO NO TOPO */}
+      <div className="flex-none h-20 bg-[#0D121C] border-b border-[#1F2937] flex items-center justify-between px-4 sm:px-6 z-50">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-gradient-to-br from-[#F20D18] to-[#FF4A0F] rounded-xl flex items-center justify-center">
+            <Settings className="w-6 h-6 text-white" />
           </div>
-          <div>
-            <h1 className="text-lg font-black text-white">Admin Panel</h1>
+          <div className="hidden sm:block">
+            <h1 className="text-xl font-black text-white">Admin Panel</h1>
             <p className="text-xs text-[#64748B]">Gerenciamento Visual</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${
+            className={`flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-bold text-sm sm:text-base transition-all shadow-lg ${
               saveSuccess
                 ? 'bg-green-600 text-white'
                 : isSaving
                 ? 'bg-[#374151] text-[#94A3B8] cursor-wait'
-                : 'bg-[#F20D18] text-white hover:bg-[#d00a14]'
+                : 'bg-[#F20D18] text-white hover:bg-[#d00a14] shadow-[#F20D18]/30'
             }`}
           >
             {saveSuccess ? (
               <>
-                <Check className="w-4 h-4" />
-                Salvo!
+                <Check className="w-5 h-5" />
+                <span className="hidden sm:inline">Salvo!</span>
+                <span className="sm:hidden">✓</span>
               </>
             ) : isSaving ? (
               <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Salvando...
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span className="hidden sm:inline">Salvando...</span>
               </>
             ) : (
               <>
-                <Save className="w-4 h-4" />
-                Salvar
+                <Save className="w-5 h-5" />
+                <span>Salvar</span>
               </>
             )}
           </button>
 
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 bg-[#1F2937] text-white rounded-lg hover:bg-[#374151] transition-colors"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-[#1F2937] text-white rounded-xl hover:bg-[#374151] transition-colors"
           >
-            <LogOut className="w-4 h-4" />
-            Sair
+            <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="hidden sm:inline">Sair</span>
           </button>
         </div>
       </div>

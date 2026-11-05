@@ -36,11 +36,64 @@ export interface MigrationResult {
 }
 
 export interface LegacyData {
-  profiles?: any[];
-  campaigns?: any[];
-  products?: any[];
-  opportunities?: any[];
-  events?: any[];
+  profiles?: LegacyProfile[];
+  campaigns?: LegacyCampaign[];
+  products?: LegacyProduct[];
+  opportunities?: LegacyOpportunity[];
+  events?: LegacyEvent[];
+}
+
+interface LegacyProfile {
+  id: string;
+  [key: string]: unknown;
+}
+
+interface LegacyCampaign {
+  id: string;
+  companyId?: string;
+  business_id?: string;
+  name?: string;
+  objective?: string;
+  title?: string;
+  description?: string;
+  mediaUrl?: string;
+  media_url?: string;
+  mediaType?: string;
+  destinationUrl?: string;
+  target_url?: string;
+  ctaLabel?: string;
+  cta_text?: string;
+  targetAudience?: {
+    countries?: string[];
+    modalities?: string[];
+  };
+  status?: string;
+  budget?: number;
+  spentBudget?: number;
+  startDate?: string;
+  endDate?: string;
+  impressionsCount?: number;
+  clicksCount?: number;
+  createdAt?: string;
+  [key: string]: unknown;
+}
+
+interface LegacyProduct {
+  id: string;
+  [key: string]: unknown;
+}
+
+interface LegacyOpportunity {
+  id: string;
+  countries?: string[];
+  modalities?: string[];
+  description?: string;
+  [key: string]: unknown;
+}
+
+interface LegacyEvent {
+  id: string;
+  [key: string]: unknown;
 }
 
 // ============================================================================
@@ -317,7 +370,7 @@ class BusinessMigrationService {
   // ==========================================================================
 
   private async migrateProfiles(
-    profiles: any[],
+    profiles: LegacyProfile[],
     userId: string
   ): Promise<void> {
     console.log('[Migration] Migrando perfis', { count: profiles.length });
@@ -378,7 +431,7 @@ class BusinessMigrationService {
     }
   }
 
-  private async migrateCampaigns(campaigns: any[]): Promise<void> {
+  private async migrateCampaigns(campaigns: LegacyCampaign[]): Promise<void> {
     console.log('[Migration] Migrando campanhas', { count: campaigns.length });
 
     for (const campaign of campaigns) {
@@ -441,7 +494,7 @@ class BusinessMigrationService {
     }
   }
 
-  private async migrateProducts(products: any[]): Promise<void> {
+  private async migrateProducts(products: LegacyProduct[]): Promise<void> {
     console.log('[Migration] Migrando produtos', { count: products.length });
 
     for (const product of products) {
@@ -488,7 +541,7 @@ class BusinessMigrationService {
     }
   }
 
-  private async migrateOpportunities(opportunities: any[]): Promise<void> {
+  private async migrateOpportunities(opportunities: LegacyOpportunity[]): Promise<void> {
     console.log('[Migration] Migrando oportunidades', {
       count: opportunities.length,
     });
@@ -535,7 +588,7 @@ class BusinessMigrationService {
     }
   }
 
-  private async migrateEvents(events: any[]): Promise<void> {
+  private async migrateEvents(events: LegacyEvent[]): Promise<void> {
     console.log('[Migration] Migrando eventos', { count: events.length });
 
     for (const event of events) {

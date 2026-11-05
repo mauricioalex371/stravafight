@@ -85,11 +85,17 @@ export class DbService {
         .from('posts')
         .select(`
           *,
-          author:profiles(id, full_name, username, avatar_url, role)
+          author:profiles(id, full_name, username, avatar_url, role, is_verified)
         `)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(50); // Limit initial load
 
-      if (error || !data || data.length === 0) {
+      if (error) {
+        console.error('[DbService] Erro ao buscar posts:', error);
+        return StorageService.getPosts();
+      }
+
+      if (!data || data.length === 0) {
         return StorageService.getPosts();
       }
 
@@ -101,7 +107,7 @@ export class DbService {
         authorAvatar: row.author?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200',
         authorModality: row.modality || 'Jiu-Jitsu',
         authorBelt: row.author_belt || 'Graduado',
-        isAuthorVerified: row.is_verified || false,
+        isAuthorVerified: row.author?.is_verified || false,
         mediaUrl: row.media_url,
         mediaType: row.media_type || 'image',
         caption: row.caption || '',
@@ -109,7 +115,7 @@ export class DbService {
         location: row.location,
         taggedAcademy: row.tagged_academy,
         likesCount: row.likes_count || 0,
-        hasLiked: false,
+        hasLiked: false, // Will be populated by LikesService.checkMultipleLikes
         commentsCount: row.comments_count || 0,
         sharesCount: row.shares_count || 0,
         savesCount: row.saves_count || 0,
@@ -118,7 +124,8 @@ export class DbService {
         comments: [],
         trainingData: row.training_data
       }));
-    } catch {
+    } catch (err) {
+      console.error('[DbService] Erro inesperado ao buscar posts:', err);
       return StorageService.getPosts();
     }
   }
@@ -208,8 +215,88 @@ export class DbService {
         training_data: post.trainingData,
         created_at: post.createdAt
       });
-      return !error;
-    } catch {
+
+      if (error) {
+        console.error('[DbService] Erro ao criar post:', error);
+        return false;
+      }
+
+      // Increment post counter
+      await supabase.rpc('increment_profile_posts', { user_id: post.authorId });
+
+      return true;
+    } catch (err) {
+      console.error('[DbService] Erro inesperado ao criar post:', err);
+      return false;
+    }
+  }
+
+  static async updatePost(postId: string, updates: Partial<Post>): Promise<boolean> {
+    if (!isSupabaseReady()) {
+      const posts = StorageService.getPosts();
+      const updated = posts.map(p => p.id === postId ? { ...p, ...updates } : p);
+      StorageService.savePosts(updated);
+      return true;
+    }
+    try {
+      // Whitelist: apenas campos editáveis permitidos
+      const allowedUpdates: Record<string, unknown> = {};
+      
+      if (updates.caption !== undefined) allowedUpdates.caption = updates.caption;
+      if (updates.hashtags !== undefined) allowedUpdates.hashtags = updates.hashtags;
+      if (updates.location !== undefined) allowedUpdates.location = updates.location;
+      if (updates.taggedAcademy !== undefined) allowedUpdates.tagged_academy = updates.taggedAcademy;
+      
+      allowedUpdates.updated_at = new Date().toISOString();
+
+      const { error } = await supabase
+        .from('posts')
+        .update(allowedUpdates)
+        .eq('id', postId);
+
+      if (error) {
+        console.error('[DbService] Erro ao atualizar post:', error);
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      console.error('[DbService] Erro inesperado ao atualizar post:', err);
+      return false;
+    }
+  }
+
+  static async deletePost(postId: string, userId: string): Promise<boolean> {
+    if (!isSupabaseReady()) {
+      const posts = StorageService.getPosts().filter(p => p.id !== postId);
+      StorageService.savePosts(posts);
+      return true;
+    }
+    try {
+      const { data, error } = await supabase
+        .from('posts')
+        .delete()
+        .eq('id', postId)
+        .eq('author_id', userId) // Dupla verificação: SQL + RLS
+        .select('id'); // Retorna linhas afetadas
+
+      if (error) {
+        console.error('[DbService] Erro ao deletar post:', error);
+        return false;
+      }
+
+      // Verificar se alguma linha foi deletada
+      if (!data || data.length === 0) {
+        console.warn('[DbService] Post não encontrado ou usuário não autorizado');
+        return false;
+      }
+
+      // Decrement post counter
+      await supabase.rpc('decrement_profile_posts', { user_id: userId });
+
+      return true;
+    } catch (err) {
+      console.error('[DbService] Erro inesperado ao deletar post:', err);
       return false;
     }
   }

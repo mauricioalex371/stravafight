@@ -2,6 +2,10 @@ import { supabase, isSupabaseReady } from '../../lib/supabase';
 import { UserProfile } from '../../types';
 import { StorageService } from '../storageService';
 
+// ============================================================================
+// TIPOS
+// ============================================================================
+
 export interface FollowerUser {
   id: string;
   username: string;
@@ -12,6 +16,32 @@ export interface FollowerUser {
   isVerified: boolean;
   followersCount: number;
   isFollowing?: boolean;
+}
+
+// Tipos do Supabase para queries tipadas
+type SupabaseProfile = {
+  id: string;
+  username: string;
+  full_name: string;
+  avatar_url: string | null;
+  bio: string | null;
+  role: string;
+  is_verified: boolean;
+  followers_count: number;
+};
+
+interface SupabaseFollowerRow {
+  follower_id: string;
+  follower: SupabaseProfile | null;
+}
+
+interface SupabaseFollowingRow {
+  following_id: string;
+  following: SupabaseProfile | null;
+}
+
+interface SupabaseFollowCheckRow {
+  following_id: string;
 }
 
 export class FollowersService {
@@ -125,9 +155,11 @@ export class FollowersService {
 
   /**
    * Obter lista de seguidores de um usuário (paginado)
+   * Agora inclui verificação real de isFollowing para cada seguidor
    */
   static async getFollowers(
     userId: string,
+    currentUserId?: string,
     page: number = 0,
     pageSize: number = 50
   ): Promise<{ users: FollowerUser[]; hasMore: boolean }> {
@@ -156,17 +188,38 @@ export class FollowersService {
         return { users: [], hasMore: false };
       }
 
-      const users: FollowerUser[] = (data || []).map((row: any) => ({
-        id: row.follower.id,
-        username: row.follower.username,
-        fullName: row.follower.full_name,
-        avatarUrl: row.follower.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200',
-        bio: row.follower.bio,
-        role: row.follower.role,
-        isVerified: row.follower.is_verified || false,
-        followersCount: row.follower.followers_count || 0,
-        isFollowing: false // TODO: pode ser otimizado com query adicional
-      }));
+      let users: FollowerUser[] = (data || [])
+        .filter((row: unknown): row is { follower_id: string; follower: SupabaseProfile } => {
+          if (typeof row !== 'object' || row === null) return false;
+          const r = row as Record<string, unknown>;
+          const follower = r.follower as Record<string, unknown> | null;
+          return follower !== null && follower !== undefined && typeof follower === 'object';
+        })
+        .map((row) => {
+          const f = row.follower as unknown as SupabaseProfile;
+          return {
+            id: f.id,
+            username: f.username,
+            fullName: f.full_name,
+            avatarUrl: f.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200',
+            bio: f.bio || undefined,
+            role: f.role,
+            isVerified: f.is_verified || false,
+            followersCount: f.followers_count || 0,
+            isFollowing: false
+          };
+        });
+
+      // Se currentUserId fornecido, verificar quem o usuário atual segue
+      if (currentUserId && users.length > 0) {
+        const followerIds = users.map(u => u.id);
+        const followMap = await this.checkMultipleFollows(currentUserId, followerIds);
+        
+        users = users.map(user => ({
+          ...user,
+          isFollowing: followMap.get(user.id) || false
+        }));
+      }
 
       return {
         users,
@@ -180,6 +233,7 @@ export class FollowersService {
 
   /**
    * Obter lista de usuários que um usuário está seguindo (paginado)
+   * isFollowing sempre true pois são users que o userId segue
    */
   static async getFollowing(
     userId: string,
@@ -211,17 +265,27 @@ export class FollowersService {
         return { users: [], hasMore: false };
       }
 
-      const users: FollowerUser[] = (data || []).map((row: any) => ({
-        id: row.following.id,
-        username: row.following.username,
-        fullName: row.following.full_name,
-        avatarUrl: row.following.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200',
-        bio: row.following.bio,
-        role: row.following.role,
-        isVerified: row.following.is_verified || false,
-        followersCount: row.following.followers_count || 0,
-        isFollowing: true
-      }));
+      const users: FollowerUser[] = (data || [])
+        .filter((row: unknown): row is { following_id: string; following: SupabaseProfile } => {
+          if (typeof row !== 'object' || row === null) return false;
+          const r = row as Record<string, unknown>;
+          const following = r.following as Record<string, unknown> | null;
+          return following !== null && following !== undefined && typeof following === 'object';
+        })
+        .map((row) => {
+          const f = row.following as unknown as SupabaseProfile;
+          return {
+            id: f.id,
+            username: f.username,
+            fullName: f.full_name,
+            avatarUrl: f.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200',
+            bio: f.bio || undefined,
+            role: f.role,
+            isVerified: f.is_verified || false,
+            followersCount: f.followers_count || 0,
+            isFollowing: true // Always true - these are users that userId follows
+          };
+        });
 
       return {
         users,
@@ -298,8 +362,10 @@ export class FollowersService {
       userIds.forEach(id => result.set(id, false));
 
       // Marca os que estão sendo seguidos
-      (data || []).forEach((row: any) => {
-        result.set(row.following_id, true);
+      (data || []).forEach((row) => {
+        if ('following_id' in row && typeof row.following_id === 'string') {
+          result.set(row.following_id, true);
+        }
       });
 
       return result;

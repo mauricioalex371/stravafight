@@ -149,7 +149,7 @@ export class CommentsService {
         text: row.text,
         createdAt: row.created_at,
         likesCount: row.likes_count || 0,
-        hasLiked: false // TODO: Wave 2 - verificar se usuário curtiu comentário
+        hasLiked: false // Comment likes feature planned for future wave
       }));
 
       return {

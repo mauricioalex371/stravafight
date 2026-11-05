@@ -43,6 +43,7 @@ const BusinessView = React.lazy(() => import('./views/BusinessView').then((m) =>
 const FriendsView = React.lazy(() => import('./views/FriendsView').then((m) => ({ default: m.FriendsView })));
 const EventsView = React.lazy(() => import('./views/EventsView').then((m) => ({ default: m.EventsView })));
 const InstitutionalView = React.lazy(() => import('./views/InstitutionalView').then((m) => ({ default: m.InstitutionalView })));
+const AdminPanel = React.lazy(() => import('./views/AdminPanel').then((m) => ({ default: m.AdminPanel })));
 
 // Dynamic code-splitting for heavy modals
 const SfActivityModal = React.lazy(() => import('./components/SfActivityModal').then((m) => ({ default: m.SfActivityModal })));
@@ -67,6 +68,14 @@ const ViewLoadingFallback = () => (
 
 
 export default function App() {
+  // Check if accessing admin panel
+  useEffect(() => {
+    if (window.location.pathname === '/secret') {
+      setCurrentView('admin');
+      setAppState('main');
+    }
+  }, []);
+
   // App State Flow
   const [appState, setAppState] = useState<'splash' | 'onboarding' | 'auth' | 'signup' | 'main'>('splash');
   const [isFirstTime, setIsFirstTime] = useState(() => {
@@ -1132,6 +1141,10 @@ export default function App() {
               onGoToSocial={() => setCurrentView('feed')}
               onGoToAcademy={() => setCurrentView('academy')}
             />
+          )}
+
+          {currentView === 'admin' && (
+            <AdminPanel />
           )}
           </React.Suspense>
         </main>

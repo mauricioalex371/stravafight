@@ -221,8 +221,7 @@ export class DbService {
         return false;
       }
 
-      // Increment post counter
-      await supabase.rpc('increment_profile_posts', { user_id: post.authorId });
+      // NOTE: posts_count counter update requires database trigger or RPC (not yet implemented)
 
       return true;
     } catch (err) {
@@ -291,8 +290,7 @@ export class DbService {
         return false;
       }
 
-      // Decrement post counter
-      await supabase.rpc('decrement_profile_posts', { user_id: userId });
+      // NOTE: posts_count counter update requires database trigger or RPC (not yet implemented)
 
       return true;
     } catch (err) {

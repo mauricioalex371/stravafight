@@ -126,7 +126,81 @@ export class DbService {
       }));
     } catch (err) {
       console.error('[DbService] Erro inesperado ao buscar posts:', err);
-      return StorageService.getPosts();
+      return [];
+    }
+  }
+
+  /**
+   * Busca posts de usuários que o user segue (Feed personalizado)
+   */
+  static async getFollowingPosts(userId: string, limit: number = 50): Promise<Post[]> {
+    if (!isSupabaseReady()) return [];
+
+    try {
+      // 1. Buscar IDs de quem o usuário segue
+      const { data: following } = await supabase
+        .from('user_followers')
+        .select('following_id')
+        .eq('follower_id', userId);
+
+      const followingIds = following?.map(f => f.following_id) || [];
+      
+      // Adicionar o próprio usuário para ver seus posts também
+      followingIds.push(userId);
+
+      if (followingIds.length === 0) {
+        // Se não segue ninguém, retornar posts populares
+        return this.getPosts();
+      }
+
+      // 2. Buscar posts de quem ele segue
+      const { data, error } = await supabase
+        .from('posts')
+        .select(`
+          *,
+          author:profiles!posts_author_id_fkey(username, full_name, avatar_url)
+        `)
+        .in('author_id', followingIds)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (error || !data) return [];
+
+      // 3. Buscar likes do usuário
+      const { data: likes } = await supabase
+        .from('post_likes')
+        .select('post_id')
+        .eq('user_id', userId);
+      const userLikes = likes?.map(l => l.post_id) || [];
+
+      return data.map((p: any) => {
+        const author = Array.isArray(p.author) ? p.author[0] : p.author;
+        return {
+          id: p.id,
+          authorId: p.author_id,
+          authorUsername: author?.username || 'unknown',
+          authorName: author?.full_name || 'Usuário',
+          authorAvatar: author?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300',
+          authorModality: p.modality || 'Jiu-Jitsu',
+          mediaUrl: p.media_url,
+          mediaType: p.media_type || 'image',
+          caption: p.caption || '',
+          location: p.location || '',
+          taggedAcademy: p.tagged_academy || '',
+          hashtags: p.hashtags || [],
+          trainingData: p.training_data,
+          likesCount: p.likes_count || 0,
+          commentsCount: p.comments_count || 0,
+          sharesCount: p.shares_count || 0,
+          savesCount: p.saves_count || 0,
+          hasLiked: userLikes.includes(p.id),
+          createdAt: p.created_at,
+          comments: []
+        };
+      });
+    } catch (err) {
+      console.error('[DbService] Erro ao buscar posts do feed:', err);
+      return [];
     }
   }
 

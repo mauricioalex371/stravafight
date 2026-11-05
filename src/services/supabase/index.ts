@@ -18,6 +18,8 @@ export type { FollowerUser } from './followersService';
 export { RecommendationsService } from './recommendationsService';
 export type { RecommendedUser } from './recommendationsService';
 
+export { UploadService } from './uploadService';
+
 export { NotificationsService } from './notificationsService';
 export type { NotificationType, CreateNotificationParams } from './notificationsService';
 

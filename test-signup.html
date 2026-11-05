@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Supabase Signup</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <h1>Test Signup</h1>
+  <button onclick="testSignup()">Test Criar Conta</button>
+  <div id="result"></div>
+
+  <script>
+    const SUPABASE_URL = 'https://olwwkgtxkduvyhduudbx.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9sd3drZ3R4a2R1dnloZHV1ZGJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM3MjEwMzAsImV4cCI6MjEwOTI5NzAzMH0.-GCwcw1yLPrd5zI6qse0iu9nc-4WaSpWPW2NUtIAdY0';
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function testSignup() {
+      const result = document.getElementById('result');
+      result.innerHTML = 'Testando...';
+
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email: 'teste_' + Date.now() + '@stravafight.com',
+          password: 'Teste123!@#',
+          options: {
+            data: {
+              full_name: 'Usuario Teste',
+              username: 'teste_' + Date.now(),
+              role: 'Atleta'
+            }
+          }
+        });
+
+        if (error) {
+          result.innerHTML = `<span style="color:red">❌ ERRO: ${error.message}</span>`;
+          console.error('Erro completo:', error);
+        } else {
+          result.innerHTML = `<span style="color:green">✅ SUCESSO! User ID: ${data.user?.id}</span>`;
+          console.log('Dados:', data);
+        }
+      } catch (err) {
+        result.innerHTML = `<span style="color:red">❌ EXCEPTION: ${err.message}</span>`;
+        console.error('Exception:', err);
+      }
+    }
+  </script>
+</body>
+</html>

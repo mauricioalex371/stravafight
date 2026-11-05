@@ -154,10 +154,13 @@ export const SignupFlow: React.FC<SignupFlowProps> = ({ email, password, onCompl
       });
 
       if (!result.success) {
-        alert('Erro ao criar conta: ' + result.error);
+        console.error('[SIGNUP] Erro ao criar conta:', result.error);
+        alert(`❌ Não foi possível criar sua conta:\n\n${result.error}\n\nTente novamente em alguns instantes.`);
         setIsCreatingAccount(false);
         return;
       }
+      
+      console.log('[SIGNUP] Conta criada com sucesso!', result.data);
 
       // 2. Criar perfil completo
       const newUser: UserProfile = {
@@ -199,8 +202,8 @@ export const SignupFlow: React.FC<SignupFlowProps> = ({ email, password, onCompl
       setIsCreatingAccount(false);
       onComplete(newUser);
     } catch (error: any) {
-      console.error('Erro ao criar conta:', error);
-      alert('Erro inesperado ao criar conta. Tente novamente.');
+      console.error('[SIGNUP] Exception ao criar conta:', error);
+      alert(`❌ Erro inesperado ao criar conta:\n\n${error.message || error}\n\nPor favor, tente novamente.`);
       setIsCreatingAccount(false);
     }
   };

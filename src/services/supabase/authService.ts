@@ -38,6 +38,8 @@ export class AuthService {
     }
 
     try {
+      console.log('[AUTH] Iniciando cadastro...', { email: payload.email, supabaseUrl: supabase.supabaseUrl });
+      
       const { data, error } = await supabase.auth.signUp({
         email: payload.email,
         password: payload.password,
@@ -52,7 +54,8 @@ export class AuthService {
       });
 
       if (error) {
-        return { success: false, error: error.message };
+        console.error('[AUTH] Erro do Supabase:', error);
+        return { success: false, error: `Erro ao criar conta: ${error.message}. Por favor, verifique sua conexão e tente novamente.` };
       }
 
       // Se o usuário foi criado, insere ou atualiza o perfil público
@@ -77,7 +80,8 @@ export class AuthService {
 
       return { success: true, data };
     } catch (err: any) {
-      return { success: false, error: err.message || 'Falha inesperada no cadastro' };
+      console.error('[AUTH] Exception ao cadastrar:', err);
+      return { success: false, error: `Falha ao conectar: ${err.message || 'Erro inesperado'}. Verifique sua internet e tente novamente.` };
     }
   }
 

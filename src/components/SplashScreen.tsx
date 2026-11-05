@@ -54,39 +54,10 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
         <source src={videoUrl} type="video/mp4" />
       </video>
 
-      {/* Loading Spinner - Positioned at Bottom */}
-      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-3">
-        {/* Circular Spinner */}
-        <div className="relative w-8 h-8">
-          {/* Background Circle */}
-          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 32 32">
-            <circle
-              cx="16"
-              cy="16"
-              r="14"
-              fill="none"
-              stroke="rgba(255, 255, 255, 0.2)"
-              strokeWidth="3"
-            />
-            {/* Progress Circle */}
-            <circle
-              cx="16"
-              cy="16"
-              r="14"
-              fill="none"
-              stroke="white"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeDasharray="87.96"
-              strokeDashoffset={87.96 - (87.96 * progress) / 100}
-              className="transition-all duration-300 ease-out drop-shadow-lg"
-            />
-          </svg>
-          {/* Percentage Text Inside Circle */}
-          <div className="absolute inset-0 flex items-center justify-center text-white text-[10px] font-bold">
-            {progress}
-          </div>
-        </div>
+      {/* 3D Animated Loader - Positioned at Bottom */}
+      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-4">
+        {/* 3D Loader */}
+        <span className="loader"></span>
       </div>
     </div>
   );

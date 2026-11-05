@@ -110,20 +110,41 @@ export const AdminPanel: React.FC = () => {
 
   // Salvar configuração
   const handleSave = () => {
-    setIsSaving(true);
-    localStorage.setItem('sf_admin_config', JSON.stringify(config));
-    
-    // Disparar evento para atualizar componentes
-    window.dispatchEvent(new Event('storage'));
-    
-    setTimeout(() => {
-      setIsSaving(false);
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
+    try {
+      setIsSaving(true);
       
-      // Mostrar mensagem de sucesso
-      alert('✅ Alterações salvas com sucesso!\n\nAs mudanças serão aplicadas na próxima vez que os componentes forem carregados.');
-    }, 1000);
+      // Salvar no localStorage
+      const configJson = JSON.stringify(config);
+      localStorage.setItem('sf_admin_config', configJson);
+      
+      // Forçar atualização dos componentes
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'sf_admin_config',
+        newValue: configJson,
+        oldValue: null,
+        url: window.location.href,
+        storageArea: localStorage
+      }));
+      
+      // Feedback visual
+      setTimeout(() => {
+        setIsSaving(false);
+        setSaveSuccess(true);
+        
+        // Copiar config para console (debug)
+        console.log('✅ Config salva:', config);
+        console.log('📦 localStorage:', localStorage.getItem('sf_admin_config'));
+        
+        setTimeout(() => setSaveSuccess(false), 3000);
+        
+        alert('✅ ALTERAÇÕES SALVAS!\n\nRecarregue a página (F5) para ver as mudanças aplicadas.');
+      }, 800);
+      
+    } catch (error) {
+      console.error('❌ Erro ao salvar:', error);
+      alert('❌ Erro ao salvar configurações. Tente novamente.');
+      setIsSaving(false);
+    }
   };
 
   // Verificar autenticação salva

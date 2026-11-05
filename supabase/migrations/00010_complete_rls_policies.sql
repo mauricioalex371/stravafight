@@ -16,24 +16,8 @@ CREATE POLICY "Public activities are visible to all"
   ON public.activities FOR SELECT
   USING (true); -- Ajustar se tiver campo is_public
 
--- Inserção: apenas próprio usuário
-CREATE POLICY "Users can create own activities"
-  ON public.activities FOR INSERT
-  TO authenticated
-  WITH CHECK (auth.uid() = user_id);
-
--- Atualização: apenas próprio usuário
-CREATE POLICY "Users can update own activities"
-  ON public.activities FOR UPDATE
-  TO authenticated
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
-
--- Exclusão: apenas próprio usuário
-CREATE POLICY "Users can delete own activities"
-  ON public.activities FOR DELETE
-  TO authenticated
-  USING (auth.uid() = user_id);
+-- NOTA: Policies de INSERT/UPDATE/DELETE foram movidas para 00018 (com melhorias)
+-- Não criar aqui para evitar duplicação
 
 -- ============================================================================
 -- 2. COMBAT_CHALLENGES (Desafios de Luta)
@@ -454,22 +438,8 @@ CREATE POLICY "Followers are public"
   ON public.user_followers FOR SELECT
   USING (true);
 
--- Inserção: usuário autenticado segue outros
-CREATE POLICY "Users can follow others"
-  ON public.user_followers FOR INSERT
-  TO authenticated
-  WITH CHECK (
-    auth.uid() = follower_id
-    AND NOT EXISTS (
-      -- Não pode seguir se estiver bloqueado
-      SELECT 1 FROM user_blocks ub
-      WHERE (
-        (ub.blocker_id = user_followers.following_id AND ub.blocked_id = auth.uid())
-        OR
-        (ub.blocked_id = user_followers.following_id AND ub.blocker_id = auth.uid())
-      )
-    )
-  );
+-- NOTA: Policy "Users can follow others" foi movida para 00015 (com trigger de contadores)
+-- Não criar aqui para evitar duplicação
 
 -- Exclusão: usuário pode deixar de seguir
 CREATE POLICY "Users can unfollow"

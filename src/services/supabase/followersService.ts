@@ -36,6 +36,7 @@ export class FollowersService {
 
     try {
       // Inserir relação de follow
+      // NOTA: Contadores são atualizados automaticamente via trigger (migration 00015)
       const { error: insertError } = await supabase
         .from('user_followers')
         .insert({ 
@@ -51,22 +52,6 @@ export class FollowersService {
           return true;
         }
         console.error('[FollowersService] Erro ao seguir usuário:', insertError);
-        return false;
-      }
-
-      // Incrementar contadores atomicamente
-      const { error: rpcError } = await supabase.rpc('increment_follower_counts', { 
-        follower_user_id: followerId,
-        following_user_id: followingId
-      });
-      
-      if (rpcError) {
-        console.error('[FollowersService] Erro ao incrementar contadores:', rpcError);
-        // Reverter follow se contadores falharam
-        await supabase.from('user_followers').delete().match({ 
-          follower_id: followerId, 
-          following_id: followingId 
-        });
         return false;
       }
 
@@ -93,6 +78,7 @@ export class FollowersService {
 
     try {
       // Deletar relação de follow
+      // NOTA: Contadores são atualizados automaticamente via trigger (migration 00015)
       const { error: deleteError } = await supabase
         .from('user_followers')
         .delete()
@@ -101,16 +87,6 @@ export class FollowersService {
       if (deleteError) {
         console.error('[FollowersService] Erro ao deixar de seguir:', deleteError);
         return false;
-      }
-
-      // Decrementar contadores atomicamente
-      const { error: rpcError } = await supabase.rpc('decrement_follower_counts', { 
-        follower_user_id: followerId,
-        following_user_id: followingId
-      });
-      
-      if (rpcError) {
-        console.error('[FollowersService] Erro ao decrementar contadores:', rpcError);
       }
 
       return true;

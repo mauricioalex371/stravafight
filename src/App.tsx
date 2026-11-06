@@ -40,6 +40,10 @@ import { FeedView } from './views/FeedView';
 const InicioPage = React.lazy(() => import('./pages/InicioPage').then((m) => ({ default: m.InicioPage })));
 const LoginPage = React.lazy(() => import('./pages/LoginPage').then((m) => ({ default: m.LoginPage })));
 const CadastroPage = React.lazy(() => import('./pages/CadastroPage').then((m) => ({ default: m.CadastroPage })));
+const Etapa1Page = React.lazy(() => import('./pages/Etapa1Page').then((m) => ({ default: m.Etapa1Page })));
+const Etapa2Page = React.lazy(() => import('./pages/Etapa2Page').then((m) => ({ default: m.Etapa2Page })));
+const Etapa3Page = React.lazy(() => import('./pages/Etapa3Page').then((m) => ({ default: m.Etapa3Page })));
+const Etapa4Page = React.lazy(() => import('./pages/Etapa4Page').then((m) => ({ default: m.Etapa4Page })));
 const ExploreView = React.lazy(() => import('./views/ExploreView').then((m) => ({ default: m.ExploreView })));
 const ReelsView = React.lazy(() => import('./views/ReelsView').then((m) => ({ default: m.ReelsView })));
 const DirectInboxView = React.lazy(() => import('./views/DirectInboxView').then((m) => ({ default: m.DirectInboxView })));
@@ -123,14 +127,15 @@ export default function App() {
       if (hasAccount) {
         setAppState('main');
       } else {
-        setAppState('login');
+        // Redirecionar para etapa1 ao invés de login
+        window.location.href = '/etapa1';
       }
     }
   };
 
   const handleOnboardingComplete = () => {
     localStorage.setItem('sf_seen_onboarding', 'true');
-    setAppState('login');
+    window.location.href = '/etapa1';
   };
 
   const [authEmail, setAuthEmail] = useState('');
@@ -956,17 +961,21 @@ export default function App() {
   }
 
   // Check if user wants to access auth routes
-  const isAuthRoute = ['/inicio', '/login', '/cadastro'].includes(window.location.pathname);
+  const isAuthRoute = ['/inicio', '/login', '/cadastro', '/etapa1', '/etapa2', '/etapa3', '/etapa4'].includes(window.location.pathname);
   
   if (isAuthRoute) {
     return (
       <BrowserRouter>
         <React.Suspense fallback={<ViewLoadingFallback />}>
           <Routes>
+            <Route path="/etapa1" element={<Etapa1Page />} />
+            <Route path="/etapa2" element={<Etapa2Page />} />
+            <Route path="/etapa3" element={<Etapa3Page />} />
+            <Route path="/etapa4" element={<Etapa4Page onLogin={handleLogin} />} />
             <Route path="/inicio" element={<InicioPage />} />
             <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
             <Route path="/cadastro" element={<CadastroPage onSignup={handleGoToSignup} />} />
-            <Route path="*" element={<Navigate to="/inicio" replace />} />
+            <Route path="*" element={<Navigate to="/etapa1" replace />} />
           </Routes>
         </React.Suspense>
       </BrowserRouter>

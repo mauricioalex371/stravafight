@@ -342,17 +342,17 @@ export const VisualEditorPanel: React.FC = () => {
             <div className="flex flex-col items-center justify-start gap-4">
               <div className="bg-[#1A1F2E] rounded-xl shadow-2xl border border-[#2D3748] overflow-hidden">
                 {activeTab === 'inicio' && (
-                  <div style={{ transform: 'scale(0.6)', transformOrigin: 'top center' }}>
+                  <div style={{ transform: 'scale(0.6)', transformOrigin: 'top center', width: '375px', height: '360px' }}>
                     <InicioPreview config={config.pages.inicio} scale={1} />
                   </div>
                 )}
                 {activeTab === 'login' && (
-                  <div style={{ transform: 'scale(0.6)', transformOrigin: 'top center' }}>
+                  <div style={{ transform: 'scale(0.6)', transformOrigin: 'top center', width: '375px', height: '360px' }}>
                     <LoginPreview config={config.pages.login} scale={1} />
                   </div>
                 )}
                 {activeTab === 'cadastro' && (
-                  <div style={{ transform: 'scale(0.6)', transformOrigin: 'top center' }}>
+                  <div style={{ transform: 'scale(0.6)', transformOrigin: 'top center', width: '375px', height: '360px' }}>
                     <CadastroPreview config={config.pages.cadastro} scale={1} />
                   </div>
                 )}

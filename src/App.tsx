@@ -49,6 +49,7 @@ const EventsView = React.lazy(() => import('./views/EventsView').then((m) => ({ 
 const InstitutionalView = React.lazy(() => import('./views/InstitutionalView').then((m) => ({ default: m.InstitutionalView })));
 const AdminPanel = React.lazy(() => import('./views/AdminPanel').then((m) => ({ default: m.AdminPanel })));
 const AuthCallbackView = React.lazy(() => import('./views/AuthCallbackView').then((m) => ({ default: m.AuthCallbackView })));
+const VisualEditorPanel = React.lazy(() => import('./views/VisualEditorPanel').then((m) => ({ default: m.VisualEditorPanel })));
 
 // Dynamic code-splitting for heavy modals
 const SfActivityModal = React.lazy(() => import('./components/SfActivityModal').then((m) => ({ default: m.SfActivityModal })));
@@ -940,6 +941,10 @@ export default function App() {
   ).length;
 
   // Special Routes (must render before state checks)
+  if (window.location.pathname === '/secret') {
+    return <VisualEditorPanel />;
+  }
+  
   if (window.location.pathname === '/auth/callback') {
     return <AuthCallbackView />;
   }

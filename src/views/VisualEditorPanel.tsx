@@ -307,7 +307,7 @@ export const VisualEditorPanel: React.FC = () => {
         </div>
 
         {/* Preview */}
-        <div className="w-[420px] bg-[#0D121C] border-l border-[#1F2937] overflow-hidden flex flex-col">
+        <div className="w-[480px] bg-[#0D121C] border-l border-[#1F2937] overflow-hidden flex flex-col">
           <div className="flex-none p-4 border-b border-[#1F2937]">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-white">👁️ Preview ao Vivo</h3>
@@ -338,20 +338,26 @@ export const VisualEditorPanel: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-[#0D121C] to-[#1F2937]/30">
+          <div className="flex-1 overflow-y-auto p-4 bg-gradient-to-b from-[#0D121C] to-[#1F2937]/30">
             <div className="flex flex-col items-center justify-start gap-4">
-              <div className="bg-[#1A1F2E] rounded-2xl p-3 shadow-2xl border border-[#2D3748]">
+              <div className="bg-[#1A1F2E] rounded-xl shadow-2xl border border-[#2D3748] overflow-hidden">
                 {activeTab === 'inicio' && (
-                  <InicioPreview config={config.pages.inicio} scale={0.52} />
+                  <div style={{ transform: 'scale(0.6)', transformOrigin: 'top center' }}>
+                    <InicioPreview config={config.pages.inicio} scale={1} />
+                  </div>
                 )}
                 {activeTab === 'login' && (
-                  <LoginPreview config={config.pages.login} scale={0.52} />
+                  <div style={{ transform: 'scale(0.6)', transformOrigin: 'top center' }}>
+                    <LoginPreview config={config.pages.login} scale={1} />
+                  </div>
                 )}
                 {activeTab === 'cadastro' && (
-                  <CadastroPreview config={config.pages.cadastro} scale={0.52} />
+                  <div style={{ transform: 'scale(0.6)', transformOrigin: 'top center' }}>
+                    <CadastroPreview config={config.pages.cadastro} scale={1} />
+                  </div>
                 )}
                 {activeTab === 'global' && (
-                  <div className="text-center text-xs text-[#94A3B8] p-12 w-[195px] h-[346px] flex items-center justify-center">
+                  <div className="text-center text-xs text-[#94A3B8] p-12 w-[225px] h-[400px] flex items-center justify-center">
                     <div>
                       <Settings className="w-8 h-8 mx-auto mb-2 opacity-30" />
                       <p>Nenhum preview<br/>disponível</p>

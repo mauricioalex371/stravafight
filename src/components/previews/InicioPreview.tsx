@@ -23,13 +23,15 @@ export const InicioPreview: React.FC<InicioPreviewProps> = ({ config, scale = 0.
     return {};
   };
 
+  const finalScale = scale === 1 ? 1 : scale;
+
   return (
     <div 
       className="relative overflow-hidden"
       style={{
         width: '375px',
-        height: '667px',
-        transform: `scale(${scale})`,
+        height: '600px',
+        transform: `scale(${finalScale})`,
         transformOrigin: 'top center',
         ...getBackgroundStyle()
       }}

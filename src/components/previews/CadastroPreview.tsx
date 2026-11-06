@@ -12,13 +12,15 @@ export const CadastroPreview: React.FC<CadastroPreviewProps> = ({ config, scale 
     ? { background: `linear-gradient(to bottom, ${config.background.gradient.from}, ${config.background.gradient.to})` }
     : { backgroundColor: config.background.color };
 
+  const finalScale = scale === 1 ? 1 : scale;
+
   return (
     <div 
       className="relative overflow-hidden"
       style={{
         width: '375px',
-        height: '667px',
-        transform: `scale(${scale})`,
+        height: '600px',
+        transform: `scale(${finalScale})`,
         transformOrigin: 'top center',
         ...bgStyle
       }}
@@ -39,7 +41,7 @@ export const CadastroPreview: React.FC<CadastroPreviewProps> = ({ config, scale 
       </div>
 
       {/* Content */}
-      <div className="p-6 overflow-y-auto" style={{ height: 'calc(100% - 73px)' }}>
+      <div className="p-6 overflow-y-auto" style={{ height: 'calc(100% - 65px)' }}>
         <div className="max-w-md mx-auto space-y-6">
           {/* Logo */}
           {config.logo.show && (

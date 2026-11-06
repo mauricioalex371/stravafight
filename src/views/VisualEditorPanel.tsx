@@ -21,6 +21,9 @@ import { VisualConfig } from '../types/visualConfig';
 import { InicioEditor } from '../components/editors/InicioEditor';
 import { LoginEditor } from '../components/editors/LoginEditor';
 import { CadastroEditor } from '../components/editors/CadastroEditor';
+import { InicioPreview } from '../components/previews/InicioPreview';
+import { LoginPreview } from '../components/previews/LoginPreview';
+import { CadastroPreview } from '../components/previews/CadastroPreview';
 
 export const VisualEditorPanel: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -304,10 +307,10 @@ export const VisualEditorPanel: React.FC = () => {
         </div>
 
         {/* Preview */}
-        <div className="w-96 bg-[#0D121C] border-l border-[#1F2937] overflow-y-auto">
-          <div className="p-4">
+        <div className="w-96 bg-[#0D121C] border-l border-[#1F2937] overflow-hidden flex flex-col">
+          <div className="flex-none p-4 border-b border-[#1F2937]">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-white">Preview</h3>
+              <h3 className="text-sm font-bold text-white">Preview ao Vivo</h3>
               <div className="flex gap-2">
                 <button
                   onClick={() => setPreviewMode('mobile')}
@@ -316,6 +319,7 @@ export const VisualEditorPanel: React.FC = () => {
                       ? 'bg-[#F20D18] text-white'
                       : 'bg-[#1F2937] text-[#94A3B8]'
                   }`}
+                  title="Mobile"
                 >
                   <Smartphone className="w-4 h-4" />
                 </button>
@@ -326,17 +330,30 @@ export const VisualEditorPanel: React.FC = () => {
                       ? 'bg-[#F20D18] text-white'
                       : 'bg-[#1F2937] text-[#94A3B8]'
                   }`}
+                  title="Desktop"
                 >
                   <Monitor className="w-4 h-4" />
                 </button>
               </div>
             </div>
+          </div>
 
-            <div className="bg-[#1F2937] rounded-xl p-4 text-center">
-              <p className="text-xs text-[#94A3B8]">
-                Preview em tempo real<br/>
-                (em desenvolvimento)
-              </p>
+          <div className="flex-1 overflow-y-auto p-4 flex items-start justify-center">
+            <div className="bg-[#1F2937] rounded-2xl p-4 shadow-2xl">
+              {activeTab === 'inicio' && (
+                <InicioPreview config={config.pages.inicio} scale={previewMode === 'mobile' ? 0.5 : 0.4} />
+              )}
+              {activeTab === 'login' && (
+                <LoginPreview config={config.pages.login} scale={previewMode === 'mobile' ? 0.5 : 0.4} />
+              )}
+              {activeTab === 'cadastro' && (
+                <CadastroPreview config={config.pages.cadastro} scale={previewMode === 'mobile' ? 0.5 : 0.4} />
+              )}
+              {activeTab === 'global' && (
+                <div className="text-center text-xs text-[#94A3B8] p-8">
+                  Nenhum preview disponível<br/>para configurações globais
+                </div>
+              )}
             </div>
           </div>
         </div>

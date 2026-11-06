@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { StorageService } from './services/storageService';
 import { LikesService, CommentsService, FollowersService, NotificationsService, MessagesService } from './services/supabase';
 import { 
@@ -34,6 +35,9 @@ import { SignupFlow } from './components/SignupFlow';
 import { FeedView } from './views/FeedView';
 
 // Dynamic code-splitting for secondary views
+const InicioPage = React.lazy(() => import('./pages/InicioPage').then((m) => ({ default: m.InicioPage })));
+const LoginPage = React.lazy(() => import('./pages/LoginPage').then((m) => ({ default: m.LoginPage })));
+const CadastroPage = React.lazy(() => import('./pages/CadastroPage').then((m) => ({ default: m.CadastroPage })));
 const ExploreView = React.lazy(() => import('./views/ExploreView').then((m) => ({ default: m.ExploreView })));
 const ReelsView = React.lazy(() => import('./views/ReelsView').then((m) => ({ default: m.ReelsView })));
 const DirectInboxView = React.lazy(() => import('./views/DirectInboxView').then((m) => ({ default: m.DirectInboxView })));
@@ -938,6 +942,24 @@ export default function App() {
   // Special Routes (must render before state checks)
   if (window.location.pathname === '/auth/callback') {
     return <AuthCallbackView />;
+  }
+
+  // Check if user wants to access auth routes
+  const isAuthRoute = ['/inicio', '/login', '/cadastro'].includes(window.location.pathname);
+  
+  if (isAuthRoute) {
+    return (
+      <BrowserRouter>
+        <React.Suspense fallback={<ViewLoadingFallback />}>
+          <Routes>
+            <Route path="/inicio" element={<InicioPage />} />
+            <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+            <Route path="/cadastro" element={<CadastroPage onSignup={handleGoToSignup} />} />
+            <Route path="*" element={<Navigate to="/inicio" replace />} />
+          </Routes>
+        </React.Suspense>
+      </BrowserRouter>
+    );
   }
 
   // Render App State Flow

@@ -100,64 +100,43 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onSignup }) => 
   // Welcome Screen
   if (mode === 'welcome') {
     return (
-      <div className="fixed inset-0 z-[9997] bg-gradient-to-br from-[#05070B] via-[#0D121C] to-[#1F2937] flex flex-col items-center justify-between p-8 overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-[#F20D18] rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#FF4A0F] rounded-full blur-3xl" />
-        </div>
+      <div className="fixed inset-0 z-[9997] bg-[#0A1929] flex flex-col items-center justify-between p-8 overflow-hidden">
+        {/* Background Gradient Azul */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0D1B2A] via-[#0A1929] to-[#071321]" />
 
         <div className="relative z-10 flex-1 flex flex-col items-center justify-center w-full max-w-md">
-          {/* Logo STRAVA FIGHT Oficial */}
-          <div className="mb-12 animate-in zoom-in fade-in duration-700">
-            <div className="relative">
-              <div 
-                className="absolute inset-0 blur-3xl opacity-20 animate-pulse" 
-                style={{ backgroundColor: config.authButtonColor }}
-              />
-              <div className="relative">
-                <img 
-                  src={config.authLogo} 
-                  alt="STRAVA FIGHT" 
-                  className="w-64 h-auto drop-shadow-2xl"
-                  onError={(e) => {
-                    // Fallback se imagem não carregar
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                  }}
-                />
-                {/* Fallback text logo */}
-                <div className="hidden flex-col items-center gap-3">
-                  <div className="flex items-center gap-2 text-4xl font-black tracking-wider">
-                    <span className="text-white">STRAVA</span>
-                    <span style={{ color: config.authButtonColor }}>FIGHT</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+          {/* Logo STRAVA FIGHT sem fundo */}
+          <div className="mb-8 animate-in zoom-in fade-in duration-700">
+            <img 
+              src="https://res.cloudinary.com/wvucafte/image/upload/f_auto/q_auto/logo_sem_fundo.png" 
+              alt="STRAVA FIGHT" 
+              className="w-80 h-auto drop-shadow-2xl"
+              onError={(e) => {
+                // Fallback
+                e.currentTarget.src = config.authLogo;
+              }}
+            />
           </div>
 
           {/* Tagline */}
-          <div className="text-center mb-16 animate-in slide-in-from-bottom-4 fade-in duration-700 delay-100">
-            <div className="flex flex-col items-center gap-3">
-              <p className="text-white text-xl font-black tracking-wide">
-                {config.authTagline}
-              </p>
-              <div className="flex items-center gap-2 text-[#94A3B8] text-sm font-semibold">
-                <span className="text-xl">🥋</span>
-                <span>{config.authSubtitle}</span>
-              </div>
+          <div className="text-center mb-12 animate-in slide-in-from-bottom-4 fade-in duration-700 delay-100">
+            <p className="text-white text-xl font-black tracking-wide mb-3">
+              {config.authTagline}
+            </p>
+            <div className="flex items-center justify-center gap-2 text-[#90CAF9] text-sm font-semibold">
+              <span className="text-xl">🥋</span>
+              <span>{config.authSubtitle}</span>
             </div>
           </div>
 
-          {/* Social Login Buttons */}
+          {/* Social Login Buttons - Estilo Novo */}
           <div className="w-full space-y-3 animate-in slide-in-from-bottom-4 fade-in duration-700 delay-200">
             {/* Google */}
             <button
               onClick={() => handleSocialLogin('google')}
-              className="w-full py-4 rounded-2xl bg-white text-[#1F2937] font-bold text-base flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-transform hover:shadow-xl"
+              className="w-full py-4 px-6 rounded-full bg-white text-[#1F2937] font-bold text-base flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all hover:shadow-2xl"
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
+              <svg className="w-6 h-6" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
@@ -169,9 +148,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onSignup }) => 
             {/* Facebook */}
             <button
               onClick={() => handleSocialLogin('facebook')}
-              className="w-full py-4 rounded-2xl bg-[#1877F2] text-white font-bold text-base flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-transform hover:shadow-xl"
+              className="w-full py-4 px-6 rounded-full bg-[#1877F2] text-white font-bold text-base flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all hover:shadow-2xl"
             >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
               </svg>
               <span>Continuar com Facebook</span>
@@ -180,39 +159,35 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onSignup }) => 
             {/* Apple */}
             <button
               onClick={() => handleSocialLogin('apple')}
-              className="w-full py-4 rounded-2xl bg-black text-white font-bold text-base flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-transform hover:shadow-xl border border-[#374151]"
+              className="w-full py-4 px-6 rounded-full bg-black text-white font-bold text-base flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all hover:shadow-2xl border-2 border-[#2D3748]"
             >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
               </svg>
               <span>Continuar com Apple</span>
             </button>
 
-            {/* Divider */}
-            <div className="relative py-4">
+            {/* Divider OU */}
+            <div className="relative py-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-[#374151]"></div>
+                <div className="w-full border-t border-[#1E293B]"></div>
               </div>
               <div className="relative flex justify-center">
-                <span className="px-4 text-sm text-[#94A3B8] bg-[#05070B]">ou</span>
+                <span className="px-4 text-sm font-bold text-[#64748B] bg-[#0A1929] uppercase tracking-wider">ou</span>
               </div>
             </div>
 
-            {/* Email Buttons */}
+            {/* Email Buttons - Estilo Atualizado */}
             <button
               onClick={() => setMode('signup')}
-              className="w-full py-4 rounded-2xl text-white font-black text-base shadow-lg active:scale-95 transition-transform"
-              style={{ 
-                background: `linear-gradient(to right, ${config.authButtonColor}, ${config.authButtonColor}dd)`,
-                boxShadow: `0 10px 40px -10px ${config.authButtonColor}40`
-              }}
+              className="w-full py-4 px-6 rounded-full bg-gradient-to-r from-[#F20D18] to-[#FF4A0F] text-white font-black text-base shadow-2xl shadow-[#F20D18]/30 active:scale-95 transition-all hover:shadow-[#F20D18]/50"
             >
               Criar Conta com Email
             </button>
             
             <button
               onClick={() => setMode('login')}
-              className="w-full py-4 rounded-2xl bg-[#1F2937] text-white font-bold text-base border border-[#374151] active:scale-95 transition-transform"
+              className="w-full py-4 px-6 rounded-full bg-[#1E293B] text-white font-bold text-base border-2 border-[#334155] active:scale-95 transition-all hover:border-[#475569]"
             >
               Entrar com Email
             </button>
@@ -220,12 +195,12 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onSignup }) => 
         </div>
 
         {/* Footer */}
-        <div className="relative z-10 text-center text-[#64748B] text-xs">
+        <div className="relative z-10 text-center text-[#475569] text-xs mt-6">
           <p>Ao continuar, você concorda com nossos</p>
           <p className="mt-1">
-            <button className="font-semibold" style={{ color: config.authButtonColor }}>Termos de Uso</button>
+            <button className="font-semibold text-[#90CAF9] hover:underline">Termos de Uso</button>
             {' e '}
-            <button className="font-semibold" style={{ color: config.authButtonColor }}>Política de Privacidade</button>
+            <button className="font-semibold text-[#90CAF9] hover:underline">Política de Privacidade</button>
           </p>
         </div>
       </div>

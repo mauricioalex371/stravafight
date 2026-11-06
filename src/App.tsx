@@ -30,6 +30,8 @@ import { SplashScreen } from './components/SplashScreen';
 import { OnboardingScreen } from './components/OnboardingScreen';
 import { AuthScreen } from './components/AuthScreen';
 import { SignupFlow } from './components/SignupFlow';
+import { WelcomeScreen } from './components/WelcomeScreen';
+import { SupportChatBot, SupportChatButton } from './components/SupportChatBot';
 
 // Immediate primary view
 import { FeedView } from './views/FeedView';
@@ -86,7 +88,7 @@ export default function App() {
   }, []);
 
   // App State Flow
-  const [appState, setAppState] = useState<'splash' | 'onboarding' | 'auth' | 'signup' | 'main'>('splash');
+  const [appState, setAppState] = useState<'splash' | 'onboarding' | 'login' | 'signup' | 'welcome' | 'main'>('splash');
   const [isFirstTime, setIsFirstTime] = useState(() => {
     const hasSeenOnboarding = localStorage.getItem('sf_seen_onboarding');
     const hasAccount = localStorage.getItem('sf_current_user');
@@ -121,21 +123,24 @@ export default function App() {
       if (hasAccount) {
         setAppState('main');
       } else {
-        setAppState('auth');
+        setAppState('login');
       }
     }
   };
 
   const handleOnboardingComplete = () => {
     localStorage.setItem('sf_seen_onboarding', 'true');
-    setAppState('auth');
+    setAppState('login');
   };
 
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
 
   const handleLogin = () => {
-    // Simulate login - in real app would authenticate
+    setAppState('welcome');
+  };
+
+  const handleWelcomeComplete = () => {
     setAppState('main');
   };
 
@@ -195,6 +200,7 @@ export default function App() {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isMobileCreateMenuOpen, setIsMobileCreateMenuOpen] = useState(false);
   const [gamificationBanner, setGamificationBanner] = useState<string | null>(null);
+  const [isSupportChatOpen, setIsSupportChatOpen] = useState(false);
 
   // Synchronize messages when conversation changes
   useEffect(() => {
@@ -976,7 +982,7 @@ export default function App() {
     return <OnboardingScreen onComplete={handleOnboardingComplete} />;
   }
 
-  if (appState === 'auth') {
+  if (appState === 'login') {
     return (
       <AuthScreen
         onLogin={handleLogin}
@@ -990,8 +996,21 @@ export default function App() {
       <SignupFlow
         email={authEmail}
         password={authPassword}
-        onComplete={handleSignupComplete}
-        onBack={handleBackFromSignup}
+        onComplete={(newUser) => {
+          setCurrentUser(newUser);
+          StorageService.saveCurrentUser(newUser);
+          setAppState('welcome');
+        }}
+        onBack={() => setAppState('login')}
+      />
+    );
+  }
+
+  if (appState === 'welcome') {
+    return (
+      <WelcomeScreen
+        userName={currentUser.fullName || 'Guerreiro'}
+        onComplete={handleWelcomeComplete}
       />
     );
   }
@@ -1347,6 +1366,17 @@ export default function App() {
           onAcceptChallenge={handleAcceptChallenge}
           onDeclineChallenge={handleDeclineChallenge}
         />
+      )}
+
+      {/* Support ChatBot */}
+      <SupportChatBot 
+        isOpen={isSupportChatOpen}
+        onClose={() => setIsSupportChatOpen(false)}
+      />
+      
+      {/* Support Chat Button */}
+      {!isSupportChatOpen && (
+        <SupportChatButton onClick={() => setIsSupportChatOpen(true)} />
       )}
       </React.Suspense>
     </div>

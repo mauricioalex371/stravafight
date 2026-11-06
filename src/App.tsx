@@ -76,8 +76,8 @@ export default function App() {
   // Check if accessing admin panel or OAuth callback
   useEffect(() => {
     if (window.location.pathname === '/secret') {
-      setCurrentView('admin');
-      setAppState('main');
+      // Render VisualEditorPanel directly
+      return;
     } else if (window.location.pathname === '/auth/callback') {
       // OAuth callback will be handled by AuthCallbackView component
       return;

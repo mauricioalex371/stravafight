@@ -307,17 +307,17 @@ export const VisualEditorPanel: React.FC = () => {
         </div>
 
         {/* Preview */}
-        <div className="w-96 bg-[#0D121C] border-l border-[#1F2937] overflow-hidden flex flex-col">
+        <div className="w-[420px] bg-[#0D121C] border-l border-[#1F2937] overflow-hidden flex flex-col">
           <div className="flex-none p-4 border-b border-[#1F2937]">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-white">Preview ao Vivo</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-white">👁️ Preview ao Vivo</h3>
               <div className="flex gap-2">
                 <button
                   onClick={() => setPreviewMode('mobile')}
-                  className={`p-2 rounded-lg transition-colors ${
+                  className={`p-2 rounded-lg transition-all ${
                     previewMode === 'mobile'
-                      ? 'bg-[#F20D18] text-white'
-                      : 'bg-[#1F2937] text-[#94A3B8]'
+                      ? 'bg-[#F20D18] text-white shadow-lg shadow-[#F20D18]/50'
+                      : 'bg-[#1F2937] text-[#94A3B8] hover:bg-[#374151]'
                   }`}
                   title="Mobile"
                 >
@@ -325,10 +325,10 @@ export const VisualEditorPanel: React.FC = () => {
                 </button>
                 <button
                   onClick={() => setPreviewMode('desktop')}
-                  className={`p-2 rounded-lg transition-colors ${
+                  className={`p-2 rounded-lg transition-all ${
                     previewMode === 'desktop'
-                      ? 'bg-[#F20D18] text-white'
-                      : 'bg-[#1F2937] text-[#94A3B8]'
+                      ? 'bg-[#F20D18] text-white shadow-lg shadow-[#F20D18]/50'
+                      : 'bg-[#1F2937] text-[#94A3B8] hover:bg-[#374151]'
                   }`}
                   title="Desktop"
                 >
@@ -338,22 +338,32 @@ export const VisualEditorPanel: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 flex items-start justify-center">
-            <div className="bg-[#1F2937] rounded-2xl p-4 shadow-2xl">
-              {activeTab === 'inicio' && (
-                <InicioPreview config={config.pages.inicio} scale={previewMode === 'mobile' ? 0.5 : 0.4} />
-              )}
-              {activeTab === 'login' && (
-                <LoginPreview config={config.pages.login} scale={previewMode === 'mobile' ? 0.5 : 0.4} />
-              )}
-              {activeTab === 'cadastro' && (
-                <CadastroPreview config={config.pages.cadastro} scale={previewMode === 'mobile' ? 0.5 : 0.4} />
-              )}
-              {activeTab === 'global' && (
-                <div className="text-center text-xs text-[#94A3B8] p-8">
-                  Nenhum preview disponível<br/>para configurações globais
-                </div>
-              )}
+          <div className="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-[#0D121C] to-[#1F2937]/30">
+            <div className="flex flex-col items-center justify-start gap-4">
+              <div className="bg-[#1A1F2E] rounded-2xl p-3 shadow-2xl border border-[#2D3748]">
+                {activeTab === 'inicio' && (
+                  <InicioPreview config={config.pages.inicio} scale={0.52} />
+                )}
+                {activeTab === 'login' && (
+                  <LoginPreview config={config.pages.login} scale={0.52} />
+                )}
+                {activeTab === 'cadastro' && (
+                  <CadastroPreview config={config.pages.cadastro} scale={0.52} />
+                )}
+                {activeTab === 'global' && (
+                  <div className="text-center text-xs text-[#94A3B8] p-12 w-[195px] h-[346px] flex items-center justify-center">
+                    <div>
+                      <Settings className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                      <p>Nenhum preview<br/>disponível</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <div className="text-xs text-[#64748B] text-center">
+                <p className="font-bold">Aba: {activeTab === 'inicio' ? 'Início' : activeTab === 'login' ? 'Login' : activeTab === 'cadastro' ? 'Cadastro' : 'Global'}</p>
+                <p className="mt-1 opacity-60">Atualização automática</p>
+              </div>
             </div>
           </div>
         </div>

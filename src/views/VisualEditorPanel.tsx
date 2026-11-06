@@ -36,12 +36,49 @@ export const VisualEditorPanel: React.FC = () => {
   const [showExportModal, setShowExportModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
 
+  // Adicionar CSS para animações
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideInRight {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes slideOutRight {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => style.remove();
+  }, []);
+
   useEffect(() => {
     const auth = localStorage.getItem('sf_admin_auth');
     if (auth === 'true') {
       setIsAuthenticated(true);
     }
   }, []);
+
+  // Atualizar preview em tempo real conforme edita
+  useEffect(() => {
+    // Salvar no localStorage enquanto edita (draft)
+    localStorage.setItem('sf_visual_config_draft', JSON.stringify(config));
+    // Disparar evento para preview atualizar
+    window.dispatchEvent(new CustomEvent('visualConfigChanged', { detail: config }));
+  }, [config]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,11 +100,36 @@ export const VisualEditorPanel: React.FC = () => {
       setIsSaving(true);
       VisualConfigService.save(config);
       
+      // Forçar reload das páginas abertas
+      window.postMessage({ type: 'VISUAL_CONFIG_UPDATED', config }, '*');
+      
       setTimeout(() => {
         setIsSaving(false);
         setSaveSuccess(true);
         setTimeout(() => setSaveSuccess(false), 3000);
-        alert('✅ CONFIGURAÇÕES SALVAS!\n\nAs mudanças foram aplicadas.');
+        
+        // Notificação de sucesso melhor
+        const savedMsg = document.createElement('div');
+        savedMsg.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+          color: white;
+          padding: 16px 24px;
+          border-radius: 12px;
+          font-weight: bold;
+          z-index: 10000;
+          box-shadow: 0 10px 40px rgba(16, 185, 129, 0.3);
+          animation: slideInRight 0.3s ease-out;
+        `;
+        savedMsg.innerHTML = '✅ Configurações salvas com sucesso!';
+        document.body.appendChild(savedMsg);
+        
+        setTimeout(() => {
+          savedMsg.style.animation = 'slideOutRight 0.3s ease-in';
+          setTimeout(() => savedMsg.remove(), 300);
+        }, 2500);
       }, 800);
     } catch (error) {
       console.error('Erro ao salvar:', error);

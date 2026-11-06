@@ -340,6 +340,11 @@ export const VisualEditorPanel: React.FC = () => {
 
           <div className="flex-1 overflow-y-auto p-4 bg-gradient-to-b from-[#0D121C] to-[#1F2937]/30">
             <div className="flex flex-col items-center justify-start gap-4">
+              {/* DEBUG */}
+              <div className="text-white text-xs bg-red-600 p-2 rounded">
+                ActiveTab: {activeTab} | Config: {JSON.stringify(config.pages.login).substring(0, 50)}...
+              </div>
+              
               <div className="bg-[#1A1F2E] rounded-xl shadow-2xl border border-[#2D3748] overflow-hidden">
                 {activeTab === 'inicio' && (
                   <div style={{ transform: 'scale(0.6)', transformOrigin: 'top center', width: '375px', height: '360px' }}>

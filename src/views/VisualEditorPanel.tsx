@@ -168,11 +168,11 @@ export const VisualEditorPanel: React.FC = () => {
   return (
     <div className="fixed inset-0 bg-[#05070B] flex flex-col overflow-hidden">
       {/* BOTÃO SALVAR FLUTUANTE */}
-      <div className="fixed bottom-6 right-6 z-[9999] flex gap-3">
+      <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[9999] flex gap-2 md:gap-3">
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className={`flex items-center gap-3 px-6 py-4 rounded-2xl font-black text-base transition-all shadow-2xl ${
+          className={`flex items-center gap-2 md:gap-3 px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl font-black text-sm md:text-base transition-all shadow-2xl ${
             saveSuccess
               ? 'bg-green-600 text-white animate-bounce'
               : isSaving
@@ -187,59 +187,59 @@ export const VisualEditorPanel: React.FC = () => {
             </>
           ) : isSaving ? (
             <>
-              <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin" />
-              <span>Salvando...</span>
+              <div className="w-5 h-5 md:w-6 md:h-6 border-3 border-white border-t-transparent rounded-full animate-spin" />
+              <span className="hidden sm:inline">Salvando...</span>
             </>
           ) : (
             <>
-              <Save className="w-6 h-6" />
-              <span>SALVAR</span>
+              <Save className="w-5 h-5 md:w-6 md:h-6" />
+              <span className="hidden sm:inline">SALVAR</span>
             </>
           )}
         </button>
 
         <button
           onClick={handleLogout}
-          className="flex items-center justify-center w-14 h-14 bg-[#1F2937] text-white rounded-2xl hover:bg-[#374151] transition-all shadow-xl"
+          className="flex items-center justify-center w-11 h-11 md:w-14 md:h-14 bg-[#1F2937] text-white rounded-xl md:rounded-2xl hover:bg-[#374151] transition-all shadow-xl"
           title="Sair"
         >
-          <LogOut className="w-6 h-6" />
+          <LogOut className="w-5 h-5 md:w-6 md:h-6" />
         </button>
       </div>
 
       {/* Header */}
-      <div className="flex-none h-20 bg-[#0D121C] border-b border-[#1F2937] flex items-center justify-between px-4 sm:px-6">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-[#F20D18] to-[#FF4A0F] rounded-xl flex items-center justify-center">
-            <Palette className="w-6 h-6 text-white" />
+      <div className="flex-none h-16 md:h-20 bg-[#0D121C] border-b border-[#1F2937] flex items-center justify-between px-3 md:px-6">
+        <div className="flex items-center gap-2 md:gap-3">
+          <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-[#F20D18] to-[#FF4A0F] rounded-lg md:rounded-xl flex items-center justify-center">
+            <Palette className="w-5 h-5 md:w-6 md:h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-black text-white">Editor Visual</h1>
-            <p className="text-xs text-[#64748B]">Personalize tudo</p>
+            <h1 className="text-base md:text-xl font-black text-white">Editor Visual</h1>
+            <p className="hidden md:block text-xs text-[#64748B]">Personalize tudo</p>
           </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-1.5 md:gap-2">
           <button
             onClick={() => setShowExportModal(true)}
-            className="p-2 rounded-lg bg-[#1F2937] text-white hover:bg-[#374151] transition-colors"
+            className="p-1.5 md:p-2 rounded-lg bg-[#1F2937] text-white hover:bg-[#374151] transition-colors"
             title="Exportar"
           >
-            <Download className="w-5 h-5" />
+            <Download className="w-4 h-4 md:w-5 md:h-5" />
           </button>
           <button
             onClick={() => setShowImportModal(true)}
-            className="p-2 rounded-lg bg-[#1F2937] text-white hover:bg-[#374151] transition-colors"
+            className="p-1.5 md:p-2 rounded-lg bg-[#1F2937] text-white hover:bg-[#374151] transition-colors"
             title="Importar"
           >
-            <Upload className="w-5 h-5" />
+            <Upload className="w-4 h-4 md:w-5 md:h-5" />
           </button>
           <button
             onClick={handleReset}
-            className="p-2 rounded-lg bg-[#1F2937] text-white hover:bg-[#374151] transition-colors"
+            className="p-1.5 md:p-2 rounded-lg bg-[#1F2937] text-white hover:bg-[#374151] transition-colors"
             title="Resetar"
           >
-            <RotateCcw className="w-5 h-5" />
+            <RotateCcw className="w-4 h-4 md:w-5 md:h-5" />
           </button>
         </div>
       </div>
@@ -247,8 +247,8 @@ export const VisualEditorPanel: React.FC = () => {
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Sidebar - Tabs */}
-        <div className="w-64 bg-[#0D121C] border-r border-[#1F2937] overflow-y-auto">
-          <div className="p-4 space-y-2">
+        <div className="w-20 md:w-64 bg-[#0D121C] border-r border-[#1F2937] overflow-y-auto">
+          <div className="p-2 md:p-4 space-y-2">
             <TabButton
               icon={Layout}
               label="Tela Início"
@@ -277,7 +277,7 @@ export const VisualEditorPanel: React.FC = () => {
         </div>
 
         {/* Editor */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6">
           <div className="max-w-4xl mx-auto">
             {activeTab === 'inicio' && (
               <InicioEditor 
@@ -306,8 +306,8 @@ export const VisualEditorPanel: React.FC = () => {
           </div>
         </div>
 
-        {/* Preview */}
-        <div className="w-[480px] bg-[#0D121C] border-l border-[#1F2937] overflow-hidden flex flex-col">
+        {/* Preview - Escondido em mobile */}
+        <div className="hidden lg:flex w-[480px] bg-[#0D121C] border-l border-[#1F2937] overflow-hidden flex-col">
           <div className="flex-none p-4 border-b border-[#1F2937]">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-white">👁️ Preview ao Vivo</h3>
@@ -340,11 +340,6 @@ export const VisualEditorPanel: React.FC = () => {
 
           <div className="flex-1 overflow-y-auto p-4 bg-gradient-to-b from-[#0D121C] to-[#1F2937]/30">
             <div className="flex flex-col items-center justify-start gap-4">
-              {/* DEBUG */}
-              <div className="text-white text-xs bg-red-600 p-2 rounded">
-                ActiveTab: {activeTab} | Config: {JSON.stringify(config.pages.login).substring(0, 50)}...
-              </div>
-              
               <div className="bg-[#1A1F2E] rounded-xl shadow-2xl border border-[#2D3748] overflow-hidden">
                 {activeTab === 'inicio' && (
                   <div style={{ transform: 'scale(0.6)', transformOrigin: 'top center', width: '375px', height: '360px' }}>
@@ -441,13 +436,14 @@ const TabButton: React.FC<{
 }> = ({ icon: Icon, label, active, onClick }) => (
   <button
     onClick={onClick}
-    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+    className={`w-full flex items-center justify-center md:justify-start gap-0 md:gap-3 px-2 md:px-4 py-3 rounded-xl transition-all ${
       active
         ? 'bg-[#F20D18] text-white'
         : 'text-[#94A3B8] hover:bg-[#1F2937]'
     }`}
+    title={label}
   >
     <Icon className="w-5 h-5" />
-    <span className="font-bold text-sm">{label}</span>
+    <span className="hidden md:inline font-bold text-sm">{label}</span>
   </button>
 );
